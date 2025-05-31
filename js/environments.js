@@ -442,12 +442,10 @@ class EnvironmentManager {
     createIceFormation() {
         const group = new THREE.Group();
         const geometry = new THREE.ConeGeometry(1, 4, 6);
-        const material = new THREE.MeshPhysicalMaterial({
+        const material = new THREE.MeshLambertMaterial({
             color: 0xE0FFFF,
             transparent: true,
-            opacity: 0.8,
-            roughness: 0.1,
-            metalness: 0.1
+            opacity: 0.8
         });
         
         const ice = new THREE.Mesh(geometry, material);

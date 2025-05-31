@@ -112,11 +112,8 @@ class LuxuryDashboard {
     createDashboard() {
         // Main dashboard base
         const dashboardGeometry = new THREE.CylinderGeometry(6, 6, 0.5, 32, 1, false, 0, Math.PI);
-        const dashboardMaterial = new THREE.MeshPhysicalMaterial({
-            color: this.colors.charcoal,
-            metalness: 0.7,
-            roughness: 0.3,
-            clearcoat: 0.1
+        const dashboardMaterial = new THREE.MeshLambertMaterial({
+            color: this.colors.charcoal
         });
         
         const dashboard = new THREE.Mesh(dashboardGeometry, dashboardMaterial);
@@ -128,10 +125,8 @@ class LuxuryDashboard {
         
         // Leather padding
         const leatherGeometry = new THREE.CylinderGeometry(5.8, 5.8, 0.1, 32, 1, false, 0, Math.PI);
-        const leatherMaterial = new THREE.MeshPhysicalMaterial({
-            color: this.colors.cognacLeather,
-            roughness: 0.8,
-            metalness: 0.1
+        const leatherMaterial = new THREE.MeshLambertMaterial({
+            color: this.colors.cognacLeather
         });
         
         const leather = new THREE.Mesh(leatherGeometry, leatherMaterial);
@@ -199,12 +194,8 @@ class LuxuryDashboard {
         
         // Gauge face
         const faceGeometry = new THREE.CylinderGeometry(config.size, config.size, 0.1, 32);
-        const faceMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x000000,
-            metalness: 0.9,
-            roughness: 0.1,
-            clearcoat: 1.0,
-            clearcoatRoughness: 0.1
+        const faceMaterial = new THREE.MeshLambertMaterial({
+            color: 0x000000
         });
         
         const face = new THREE.Mesh(faceGeometry, faceMaterial);
@@ -213,10 +204,8 @@ class LuxuryDashboard {
         
         // Gauge rim
         const rimGeometry = new THREE.TorusGeometry(config.size, 0.1, 8, 32);
-        const rimMaterial = new THREE.MeshPhysicalMaterial({
-            color: this.colors.silver,
-            metalness: 1.0,
-            roughness: 0.2
+        const rimMaterial = new THREE.MeshLambertMaterial({
+            color: this.colors.silver
         });
         
         const rim = new THREE.Mesh(rimGeometry, rimMaterial);
@@ -240,10 +229,8 @@ class LuxuryDashboard {
         
         // Center hub
         const hubGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.05, 16);
-        const hubMaterial = new THREE.MeshPhysicalMaterial({
-            color: this.colors.roseGold,
-            metalness: 1.0,
-            roughness: 0.1
+        const hubMaterial = new THREE.MeshLambertMaterial({
+            color: this.colors.roseGold
         });
         
         const hub = new THREE.Mesh(hubGeometry, hubMaterial);
@@ -289,11 +276,71 @@ class LuxuryDashboard {
     }
     
     setupEnvironmentManager() {
-        this.environmentManager = new EnvironmentManager(this.scene);
+        try {
+            this.environmentManager = new EnvironmentManager(this.scene);
+        } catch (error) {
+            console.warn('Environment manager failed to initialize:', error);
+            // Create simple fallback background
+            this.createSimpleBackground();
+        }
     }
     
     setupAdvancedInteractions() {
-        this.advancedInteractions = new AdvancedInteractions(this);
+        try {
+            this.advancedInteractions = new AdvancedInteractions(this);
+        } catch (error) {
+            console.warn('Advanced interactions failed to initialize:', error);
+            // Fall back to basic event listeners
+            this.setupBasicEventListeners();
+        }
+    }
+    
+    createSimpleBackground() {
+        const starGeometry = new THREE.BufferGeometry();
+        const starPositions = [];
+        
+        for (let i = 0; i < 1000; i++) {
+            starPositions.push(
+                (Math.random() - 0.5) * 100,
+                (Math.random() - 0.5) * 100,
+                (Math.random() - 0.5) * 100
+            );
+        }
+        
+        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+        
+        const starMaterial = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 0.1,
+            sizeAttenuation: true
+        });
+        
+        this.backgroundEnvironment = new THREE.Points(starGeometry, starMaterial);
+        this.scene.add(this.backgroundEnvironment);
+    }
+    
+    setupBasicEventListeners() {
+        const canvas = document.getElementById('canvas');
+        canvas.addEventListener('click', (event) => {
+            // Basic click interaction
+            const mouse = new THREE.Vector2();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, this.camera);
+            
+            const intersects = raycaster.intersectObjects(
+                this.gauges.map(g => g.group.children).flat()
+            );
+            
+            if (intersects.length > 0) {
+                const gauge = this.gauges.find(g => g.group.children.includes(intersects[0].object));
+                if (gauge) {
+                    this.animateGaugeValue(gauge, gauge.config.value + Math.random() * 20 - 10);
+                }
+            }
+        });
     }
     
     setupEventListeners() {
@@ -350,8 +397,10 @@ class LuxuryDashboard {
         requestAnimationFrame(() => this.animate());
         
         // Animate environment
-        if (this.environmentManager) {
+        if (this.environmentManager && this.environmentManager.animate) {
             this.environmentManager.animate();
+        } else if (this.backgroundEnvironment) {
+            this.backgroundEnvironment.rotation.y += 0.0002;
         }
         
         // Subtle dashboard breathing effect
@@ -363,7 +412,7 @@ class LuxuryDashboard {
         }
         
         // Dynamic environment switching based on performance
-        if (Math.random() < 0.0001) { // Very rare automatic switching
+        if (this.environmentManager && this.environmentManager.switchEnvironment && Math.random() < 0.0001) {
             const performance = this.salesData.quarterProgress;
             this.environmentManager.switchEnvironment('auto', performance);
         }
