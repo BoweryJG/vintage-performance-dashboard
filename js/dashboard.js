@@ -67,13 +67,14 @@ class LuxuryDashboard {
     
     setupCamera() {
         this.camera = new THREE.PerspectiveCamera(
-            75, 
+            60, 
             window.innerWidth / window.innerHeight, 
             0.1, 
             1000
         );
-        this.camera.position.set(0, 4, 6);
-        this.camera.lookAt(0, 0.5, 0);
+        // RESTORE: Perfect vintage automobile driver's seat perspective
+        this.camera.position.set(0, 3, 10);
+        this.camera.lookAt(0, 0, 3);
     }
     
     setupRenderer() {
@@ -110,28 +111,52 @@ class LuxuryDashboard {
     }
     
     createDashboard() {
-        // Main dashboard base - use BoxGeometry for full rectangular dashboard
-        const dashboardGeometry = new THREE.BoxGeometry(12, 0.5, 8);
-        const dashboardMaterial = new THREE.MeshLambertMaterial({
-            color: this.colors.charcoal
+        // RESTORE: Curved vintage automobile dashboard with luxury materials
+        const dashboardGeometry = new THREE.CylinderGeometry(8, 8, 0.8, 32, 1, false, 0, Math.PI);
+        const dashboardMaterial = new THREE.MeshPhysicalMaterial({
+            color: this.colors.charcoal,
+            metalness: 0.7,
+            roughness: 0.3,
+            clearcoat: 0.1,
+            clearcoatRoughness: 0.1
         });
         
         const dashboard = new THREE.Mesh(dashboardGeometry, dashboardMaterial);
-        dashboard.position.y = -0.25;
+        dashboard.rotation.x = Math.PI / 6; // Angle toward viewer
+        dashboard.position.y = -0.5;
+        dashboard.castShadow = true;
         dashboard.receiveShadow = true;
         
         this.dashboardGroup.add(dashboard);
         
-        // Leather padding
-        const leatherGeometry = new THREE.BoxGeometry(11.5, 0.1, 7.5);
-        const leatherMaterial = new THREE.MeshLambertMaterial({
-            color: this.colors.cognacLeather
+        // Luxury cognac leather padding
+        const leatherGeometry = new THREE.CylinderGeometry(7.5, 7.5, 0.15, 32, 1, false, 0, Math.PI);
+        const leatherMaterial = new THREE.MeshPhysicalMaterial({
+            color: this.colors.cognacLeather,
+            roughness: 0.8,
+            metalness: 0.1,
+            normalScale: new THREE.Vector2(0.5, 0.5)
         });
         
         const leather = new THREE.Mesh(leatherGeometry, leatherMaterial);
-        leather.position.y = 0.05;
+        leather.rotation.x = Math.PI / 6;
+        leather.position.y = -0.35;
         
         this.dashboardGroup.add(leather);
+        
+        // Add vintage dashboard trim
+        const trimGeometry = new THREE.TorusGeometry(7.8, 0.1, 8, 32, Math.PI);
+        const trimMaterial = new THREE.MeshPhysicalMaterial({
+            color: this.colors.silver,
+            metalness: 1.0,
+            roughness: 0.2
+        });
+        
+        const trim = new THREE.Mesh(trimGeometry, trimMaterial);
+        trim.rotation.x = Math.PI / 6;
+        trim.position.y = -0.35;
+        
+        this.dashboardGroup.add(trim);
         
         this.scene.add(this.dashboardGroup);
     }
@@ -140,42 +165,42 @@ class LuxuryDashboard {
         const gaugeConfigs = [
             { 
                 name: 'Performance', 
-                position: { x: 0, y: 0.3, z: 0 }, 
+                position: { x: 0, y: 0, z: 2 }, 
                 value: this.salesData.quarterProgress, 
                 max: 100,
-                size: 1.2,
+                size: 1.8,
                 color: this.colors.racingGreen 
             },
             { 
                 name: 'Revenue', 
-                position: { x: -3.5, y: 0.3, z: 0 }, 
+                position: { x: -4, y: 0.2, z: 3.5 }, 
                 value: (this.salesData.revenue / this.salesData.quota) * 100, 
                 max: 150,
-                size: 1.0,
+                size: 1.3,
                 color: this.colors.amber 
             },
             { 
                 name: 'Pipeline', 
-                position: { x: 3.5, y: 0.3, z: 0 }, 
+                position: { x: 4, y: 0.2, z: 3.5 }, 
                 value: 75, 
                 max: 100,
-                size: 1.0,
+                size: 1.3,
                 color: this.colors.silver 
             },
             { 
                 name: 'Velocity', 
-                position: { x: -1.8, y: 0.3, z: -1.5 }, 
+                position: { x: -2.5, y: 0.4, z: 5 }, 
                 value: 30, 
                 max: 50,
-                size: 0.8,
+                size: 1.0,
                 color: this.colors.roseGold 
             },
             { 
                 name: 'Ranking', 
-                position: { x: 1.8, y: 0.3, z: -1.5 }, 
+                position: { x: 2.5, y: 0.4, z: 5 }, 
                 value: 97, 
                 max: 100,
-                size: 0.8,
+                size: 1.0,
                 color: this.colors.cream 
             }
         ];
@@ -190,49 +215,70 @@ class LuxuryDashboard {
     createGauge(config) {
         const group = new THREE.Group();
         
-        // Gauge face
+        // RESTORE: Luxury gauge face with crystal-clear glass effect
         const faceGeometry = new THREE.CylinderGeometry(config.size, config.size, 0.1, 32);
-        const faceMaterial = new THREE.MeshLambertMaterial({
-            color: 0x000000
+        const faceMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x000000,
+            metalness: 0.9,
+            roughness: 0.1,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.1,
+            reflectivity: 0.9
         });
         
         const face = new THREE.Mesh(faceGeometry, faceMaterial);
-        face.position.set(config.position.x, config.position.y + 0.1, config.position.z);
+        face.position.set(config.position.x, config.position.y + 0.15, config.position.z);
+        face.rotation.x = -Math.PI / 2;
+        face.castShadow = true;
+        face.receiveShadow = true;
         group.add(face);
         
-        // Gauge rim
-        const rimGeometry = new THREE.TorusGeometry(config.size, 0.1, 8, 32);
-        const rimMaterial = new THREE.MeshLambertMaterial({
-            color: this.colors.silver
+        // RESTORE: Brushed aluminum gauge rim
+        const rimGeometry = new THREE.TorusGeometry(config.size + 0.1, 0.15, 8, 32);
+        const rimMaterial = new THREE.MeshPhysicalMaterial({
+            color: this.colors.silver,
+            metalness: 1.0,
+            roughness: 0.3,
+            clearcoat: 0.5
         });
         
         const rim = new THREE.Mesh(rimGeometry, rimMaterial);
-        rim.position.set(config.position.x, config.position.y + 0.1, config.position.z);
+        rim.position.set(config.position.x, config.position.y + 0.15, config.position.z);
         rim.rotation.x = -Math.PI / 2;
+        rim.castShadow = true;
         group.add(rim);
         
-        // Needle - use BoxGeometry for a flat needle
-        const needleGeometry = new THREE.BoxGeometry(config.size * 0.7, 0.02, 0.05);
-        const needleMaterial = new THREE.MeshPhongMaterial({
+        // RESTORE: Precision needle like luxury watch hands
+        const needleGeometry = new THREE.ConeGeometry(0.03, config.size * 0.8, 8);
+        const needleMaterial = new THREE.MeshPhysicalMaterial({
             color: config.color,
-            shininess: 100,
+            metalness: 0.8,
+            roughness: 0.2,
             emissive: config.color,
-            emissiveIntensity: 0.2
+            emissiveIntensity: 0.3,
+            clearcoat: 0.8
         });
         
         const needle = new THREE.Mesh(needleGeometry, needleMaterial);
-        needle.position.set(config.position.x, config.position.y + 0.15, config.position.z);
-        needle.rotation.y = this.valueToAngle(config.value, config.max);
+        needle.position.set(config.position.x, config.position.y + 0.2, config.position.z);
+        needle.rotation.z = this.valueToAngle(config.value, config.max);
+        needle.rotation.x = -Math.PI / 2;
+        needle.castShadow = true;
         group.add(needle);
         
-        // Center hub
-        const hubGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.05, 16);
-        const hubMaterial = new THREE.MeshLambertMaterial({
-            color: this.colors.roseGold
+        // RESTORE: Rose gold center hub
+        const hubGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.08, 16);
+        const hubMaterial = new THREE.MeshPhysicalMaterial({
+            color: this.colors.roseGold,
+            metalness: 1.0,
+            roughness: 0.1,
+            clearcoat: 0.9
         });
         
         const hub = new THREE.Mesh(hubGeometry, hubMaterial);
-        hub.position.set(config.position.x, config.position.y + 0.15, config.position.z);
+        hub.position.set(config.position.x, config.position.y + 0.2, config.position.z);
+        hub.rotation.x = -Math.PI / 2;
+        hub.castShadow = true;
         group.add(hub);
         
         // Scale markings
@@ -248,25 +294,35 @@ class LuxuryDashboard {
     }
     
     createScaleMarkings(group, config) {
-        const markings = 8;
+        const markings = 12;
         for (let i = 0; i <= markings; i++) {
-            const angle = -Math.PI + (Math.PI * 2 * i / markings);
-            const x = Math.cos(angle) * (config.size * 0.9);
-            const z = Math.sin(angle) * (config.size * 0.9);
+            const angle = -Math.PI * 0.75 + (Math.PI * 1.5 * i / markings);
+            const x = Math.cos(angle) * (config.size * 0.85);
+            const z = Math.sin(angle) * (config.size * 0.85);
             
-            const markGeometry = new THREE.BoxGeometry(0.1, 0.05, 0.1);
-            const markMaterial = new THREE.MeshLambertMaterial({ 
+            // Major and minor markings like luxury watch
+            const isMajor = i % 3 === 0;
+            const markGeometry = new THREE.BoxGeometry(
+                isMajor ? 0.08 : 0.04, 
+                0.03, 
+                isMajor ? 0.2 : 0.1
+            );
+            const markMaterial = new THREE.MeshPhysicalMaterial({ 
                 color: this.colors.cream,
                 emissive: this.colors.cream,
-                emissiveIntensity: 0.3
+                emissiveIntensity: 0.4,
+                metalness: 0.3,
+                roughness: 0.2
             });
             
             const mark = new THREE.Mesh(markGeometry, markMaterial);
             mark.position.set(
                 config.position.x + x, 
-                config.position.y + 0.12, 
+                config.position.y + 0.16, 
                 config.position.z + z
             );
+            mark.rotation.x = -Math.PI / 2;
+            mark.castShadow = true;
             
             group.add(mark);
         }
@@ -274,8 +330,8 @@ class LuxuryDashboard {
     
     valueToAngle(value, max) {
         const normalizedValue = Math.min(value / max, 1);
-        // Return angle from 0 to 2π for full circle sweep
-        return normalizedValue * Math.PI * 2;
+        // Classic gauge sweep: -135° to +135° (270° total)
+        return -Math.PI * 0.75 + (Math.PI * 1.5 * normalizedValue);
     }
     
     setupEnvironmentManager() {
