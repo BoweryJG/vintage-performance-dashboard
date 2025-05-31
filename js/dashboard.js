@@ -41,25 +41,25 @@ class LuxuryDashboard {
     }
     
     init() {
-        console.log('Initializing dashboard...');
+        console.log('Initializing luxury dashboard...');
         this.setupScene();
-        console.log('Scene created');
+        console.log('Scene created, background:', this.scene.background);
         this.setupCamera();
-        console.log('Camera set up');
+        console.log('Camera position:', this.camera.position, 'looking at: (0,0,2)');
         this.setupRenderer();
-        console.log('Renderer set up');
+        console.log('Renderer setup complete, size:', this.renderer.getSize(new THREE.Vector2()));
         this.setupLights();
-        console.log('Lights added');
+        console.log('Lights added to scene');
         this.createDashboard();
-        console.log('Dashboard created');
+        console.log('Luxury dashboard created with PBR materials');
         this.createGauges();
-        console.log('Gauges created:', this.gauges.length);
+        console.log('Luxury gauges created:', this.gauges.length, 'gauges with PBR materials');
         this.setupEnvironmentManager();
-        console.log('Environment manager set up');
+        console.log('Environment manager ready');
         this.setupAdvancedInteractions();
-        console.log('Interactions set up');
+        console.log('Advanced interactions ready');
         this.animate();
-        console.log('Animation started');
+        console.log('Luxury dashboard animation started - should be visible now!');
         
         // Hide loading screen
         setTimeout(() => {
@@ -83,8 +83,8 @@ class LuxuryDashboard {
             1000
         );
         // LUXURY: Perfect vintage automobile driver's seat perspective
-        this.camera.position.set(0, 4, 12);
-        this.camera.lookAt(0, 0, 4);
+        this.camera.position.set(0, 3, 8);
+        this.camera.lookAt(0, 0, 2);
     }
     
     setupRenderer() {
@@ -137,6 +137,7 @@ class LuxuryDashboard {
         
         const dashboard = new THREE.Mesh(dashboardGeometry, dashboardMaterial);
         dashboard.rotation.x = Math.PI / 6; // Vintage automotive angle
+        dashboard.rotation.y = Math.PI;     // CRITICAL: Face the curve toward user
         dashboard.position.y = -0.5;
         dashboard.castShadow = true;
         dashboard.receiveShadow = true;
@@ -157,6 +158,7 @@ class LuxuryDashboard {
         
         const leather = new THREE.Mesh(leatherGeometry, leatherMaterial);
         leather.rotation.x = Math.PI / 6;
+        leather.rotation.y = Math.PI;     // CRITICAL: Match dashboard rotation
         leather.position.y = -0.35;
         
         this.dashboardGroup.add(leather);
