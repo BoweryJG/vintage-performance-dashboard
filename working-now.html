@@ -46,9 +46,9 @@
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x001122);
             
-            // Camera
+            // Camera - Driver's seat view of dashboard
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 5, 10);
+            camera.position.set(0, 4, 8);  // In front looking at dashboard
             camera.lookAt(0, 0, 0);
             
             // Renderer
@@ -80,23 +80,25 @@
         }
 
         function createDashboard() {
-            // WORKING curved dashboard
-            const dashGeometry = new THREE.CylinderGeometry(7, 7, 1, 32, 1, false, 0, Math.PI);
+            // FIXED: Full dashboard that we can see completely
+            const dashGeometry = new THREE.CylinderGeometry(7, 7, 1, 32, 1, false, -Math.PI/2, Math.PI);
             const dashMaterial = new THREE.MeshLambertMaterial({ color: colors.charcoal });
             
             dashboard = new THREE.Mesh(dashGeometry, dashMaterial);
             dashboard.rotation.x = Math.PI / 6;
+            dashboard.rotation.y = 0; // Face the camera directly
             dashboard.position.y = -1;
             dashboard.castShadow = true;
             dashboard.receiveShadow = true;
             scene.add(dashboard);
             
-            // Leather trim
-            const leatherGeometry = new THREE.CylinderGeometry(6.5, 6.5, 0.2, 32, 1, false, 0, Math.PI);
+            // Leather trim  
+            const leatherGeometry = new THREE.CylinderGeometry(6.5, 6.5, 0.2, 32, 1, false, -Math.PI/2, Math.PI);
             const leatherMaterial = new THREE.MeshLambertMaterial({ color: colors.cognacLeather });
             
             const leather = new THREE.Mesh(leatherGeometry, leatherMaterial);
             leather.rotation.x = Math.PI / 6;
+            leather.rotation.y = 0;
             leather.position.y = -0.5;
             scene.add(leather);
             
