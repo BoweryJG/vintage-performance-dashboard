@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>1963 Luxury Dashboard - SIMPLE APPROACH</title>
+    <style>
+        body { margin: 0; background: linear-gradient(135deg, #0B4D3B 0%, #1a1a1a 100%); overflow: hidden; }
+        canvas { display: block; }
+        #hud { 
+            position: absolute; top: 20px; left: 20px; color: #F5F5DC; 
+            font-family: Arial; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="hud">
+        <div>🏎️ Q4 Performance: <span id="progress">87%</span></div>
+        <div>💰 Revenue: <span id="revenue">$245K</span></div>
+        <div>📈 Pipeline: <span id="pipeline">$580K</span></div>
+        <div>🏆 Team Ranking: <span id="ranking">#3</span></div>
+    </div>
+    <canvas id="canvas"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+    <script>
+        let scene, camera, renderer, dashboard, gauges = [];
+        
+        // LUXURY COLORS - but keeping simple approach
+        const colors = {
+            racingGreen: 0x228B22,    // Bright racing green
+            cognacLeather: 0xD2B48C,  // Bright cognac  
+            cream: 0xF5F5DC,          // Cream white
+            charcoal: 0x696969,       // Light charcoal (not too dark)
+            silver: 0xE8E8E8,         // Bright silver
+            roseGold: 0xE8B4A0,       // Rose gold
+            amber: 0xFFBF00,          // Bright amber
+            redZone: 0xFF4500         // Bright red
+        };
+
+        function init() {
+            console.log('Creating 1963 Luxury Dashboard - Simple Method');
+            
+            // EXACT same setup as working version
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x001122);
+            
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 2, 5); // EXACT working position
+            camera.lookAt(0, 0, 0);
+            
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas') });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            // SAME bright lighting as working version
+            const light = new THREE.DirectionalLight(0xffffff, 2);
+            light.position.set(1, 1, 1);
+            scene.add(light);
+            
+            const ambient = new THREE.AmbientLight(0xffffff, 1);
+            scene.add(ambient);
+            
+            createLuxuryDashboardSimple();
+            createLuxuryGaugesSimple();
+            createStarfield();
+            
+            animate();
+            console.log('Luxury Dashboard Created - Should see luxury colors!');
+        }
+
+        function createLuxuryDashboardSimple() {
+            // LUXURY dashboard - LARGER and MORE VISIBLE
+            const dashGeometry = new THREE.PlaneGeometry(12, 6);
+            const dashMaterial = new THREE.MeshLambertMaterial({ 
+                color: colors.charcoal,
+                side: THREE.DoubleSide,
+                emissive: colors.charcoal,
+                emissiveIntensity: 0.2
+            });
+            
+            dashboard = new THREE.Mesh(dashGeometry, dashMaterial);
+            dashboard.position.set(0, -1.5, -0.5);
+            dashboard.rotation.x = -Math.PI / 6; // Gentler tilt
+            scene.add(dashboard);
+            
+            // COGNAC LEATHER - BRIGHTER and MORE VISIBLE
+            const leatherGeometry = new THREE.PlaneGeometry(10, 4);
+            const leatherMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0xDEB887, // BRIGHT cognac/tan
+                side: THREE.DoubleSide,
+                emissive: 0x8B7355,
+                emissiveIntensity: 0.4
+            });
+            
+            const leather = new THREE.Mesh(leatherGeometry, leatherMaterial);
+            leather.position.set(0, -1.3, -0.3);
+            leather.rotation.x = -Math.PI / 6;
+            scene.add(leather);
+            
+            console.log('✓ LARGE cognac leather dashboard created');
+        }
+
+        function createLuxuryGaugesSimple() {
+            // LUXURY gauges using working simple approach
+            const gaugeData = [
+                { name: 'Performance', pos: [0, 0, 1], value: 87, size: 0.8, color: colors.racingGreen },
+                { name: 'Revenue', pos: [-2, 0, 1], value: 82, size: 0.7, color: colors.amber },
+                { name: 'Pipeline', pos: [2, 0, 1], value: 75, size: 0.7, color: colors.silver },
+                { name: 'Velocity', pos: [-1, 1, 1], value: 60, size: 0.7, color: 0xFF69B4 }, // Bright pink/rose
+                { name: 'Ranking', pos: [1, 1, 1], value: 90, size: 0.6, color: colors.cream }
+            ];
+
+            gaugeData.forEach((data, i) => {
+                console.log(`Creating FULL luxury gauge ${i}: ${data.name}`);
+                
+                // LUXURY GAUGE FACE - dark background
+                const faceGeometry = new THREE.CylinderGeometry(data.size, data.size, 0.08, 32);
+                const faceMaterial = new THREE.MeshLambertMaterial({ 
+                    color: 0x222222,
+                    emissive: 0x111111,
+                    emissiveIntensity: 0.2
+                });
+                
+                const face = new THREE.Mesh(faceGeometry, faceMaterial);
+                face.position.set(data.pos[0], data.pos[1], data.pos[2]);
+                face.rotation.x = -Math.PI / 2;
+                scene.add(face);
+                
+                // LUXURY gauge ring - using WORKING approach
+                const ringGeometry = new THREE.TorusGeometry(data.size + 0.1, 0.08, 8, 16);
+                const ringMaterial = new THREE.MeshLambertMaterial({ 
+                    color: data.color,
+                    emissive: data.color,
+                    emissiveIntensity: 0.5  // Make it glow more
+                });
+                
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.position.set(data.pos[0], data.pos[1] + 0.05, data.pos[2]);
+                ring.rotation.x = -Math.PI / 2;
+                scene.add(ring);
+                
+                // SCALE MARKINGS - luxury details
+                for (let j = 0; j <= 10; j++) {
+                    const markAngle = -Math.PI * 0.75 + (Math.PI * 1.5 * j / 10);
+                    const markX = data.pos[0] + Math.cos(markAngle) * (data.size * 0.85);
+                    const markZ = data.pos[2] + Math.sin(markAngle) * (data.size * 0.85);
+                    
+                    const isMajor = j % 2 === 0;
+                    const markGeometry = new THREE.BoxGeometry(
+                        isMajor ? 0.03 : 0.015, 
+                        0.015, 
+                        isMajor ? 0.08 : 0.04
+                    );
+                    const markMaterial = new THREE.MeshLambertMaterial({ 
+                        color: colors.cream,
+                        emissive: colors.cream,
+                        emissiveIntensity: 0.6
+                    });
+                    
+                    const mark = new THREE.Mesh(markGeometry, markMaterial);
+                    mark.position.set(markX, data.pos[1] + 0.06, markZ);
+                    mark.rotation.x = -Math.PI / 2;
+                    scene.add(mark);
+                }
+                
+                // LUXURY needle - bright and visible
+                const needleGeometry = new THREE.ConeGeometry(0.015, data.size * 0.7, 8);
+                const needleMaterial = new THREE.MeshLambertMaterial({ 
+                    color: 0xFFFFFF,  // Bright white needle
+                    emissive: 0xFFFFFF,
+                    emissiveIntensity: 0.8
+                });
+                
+                const needle = new THREE.Mesh(needleGeometry, needleMaterial);
+                needle.position.set(data.pos[0], data.pos[1] + 0.08, data.pos[2]);
+                
+                // Set needle angle based on value
+                const angle = -Math.PI * 0.75 + (Math.PI * 1.5 * (data.value / 100));
+                needle.rotation.z = angle;
+                needle.rotation.x = -Math.PI / 2;
+                scene.add(needle);
+                
+                // LUXURY center hub - rose gold
+                const hubGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.04, 16);
+                const hubMaterial = new THREE.MeshLambertMaterial({ 
+                    color: colors.roseGold,
+                    emissive: colors.roseGold,
+                    emissiveIntensity: 0.5
+                });
+                
+                const hub = new THREE.Mesh(hubGeometry, hubMaterial);
+                hub.position.set(data.pos[0], data.pos[1] + 0.07, data.pos[2]);
+                hub.rotation.x = -Math.PI / 2;
+                scene.add(hub);
+                
+                gauges.push({
+                    ring: ring,
+                    needle: needle,
+                    hub: hub,
+                    data: data,
+                    baseAngle: angle
+                });
+                
+                console.log(`✓ Luxury gauge ${i} created with ${data.name} styling`);
+            });
+        }
+
+        function createStarfield() {
+            const starGeometry = new THREE.BufferGeometry();
+            const starPositions = [];
+            
+            for (let i = 0; i < 500; i++) {
+                starPositions.push(
+                    (Math.random() - 0.5) * 50,
+                    (Math.random() - 0.5) * 50,
+                    (Math.random() - 0.5) * 50
+                );
+            }
+            
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+            
+            const starMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.15,
+                sizeAttenuation: true
+            });
+            
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+            
+            console.log('Luxury starfield added');
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Animate luxury gauges
+            gauges.forEach((gauge, i) => {
+                const time = Date.now() * 0.001;
+                
+                // Subtle needle flutter
+                const flutter = Math.sin(time + i) * 0.03;
+                gauge.needle.rotation.z = gauge.baseAngle + flutter;
+                
+                // Gentle ring rotation
+                gauge.ring.rotation.y += 0.005;
+                
+                // Hub breathing effect
+                const breathing = 1 + Math.sin(time * 2 + i) * 0.1;
+                gauge.hub.scale.setScalar(breathing);
+            });
+            
+            // Dashboard breathing
+            if (dashboard) {
+                dashboard.position.y = -1 + Math.sin(Date.now() * 0.001) * 0.02;
+            }
+            
+            // Update HUD occasionally
+            if (Math.random() < 0.001) {
+                updateHUD();
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        function updateHUD() {
+            const progress = Math.max(75, Math.min(100, 87 + (Math.random() - 0.5) * 8));
+            const revenue = Math.round(245 + (Math.random() - 0.5) * 30);
+            const pipeline = Math.round(580 + (Math.random() - 0.5) * 60);
+            
+            const progressEl = document.getElementById('progress');
+            const revenueEl = document.getElementById('revenue');
+            const pipelineEl = document.getElementById('pipeline');
+            
+            if (progressEl) progressEl.textContent = Math.round(progress) + '%';
+            if (revenueEl) revenueEl.textContent = '$' + revenue + 'K';
+            if (pipelineEl) pipelineEl.textContent = '$' + pipeline + 'K';
+        }
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Start
+        window.addEventListener('load', () => {
+            if (typeof THREE !== 'undefined') {
+                init();
+            } else {
+                console.log("Three.js failed to load");
+            }
+        });
+    </script>
+</body>
+</html>

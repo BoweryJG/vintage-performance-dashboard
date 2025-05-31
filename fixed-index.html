@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1963 Executive Cockpit - FIXED</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0B4D3B 0%, #1a1a1a 100%);
+            overflow: hidden;
+            height: 100vh;
+            color: #F5F5DC;
+        }
+
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #canvas {
+            display: block;
+            cursor: grab;
+        }
+
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            color: #F5F5DC;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #B7895F;
+            font-size: 18px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            z-index: 200;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #B7895F;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity 1s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="loading">
+            <div class="loading-spinner"></div>
+            INITIALIZING LUXURY 1963 COCKPIT
+        </div>
+        
+        <div id="hud">
+            <div>Q4 Progress: <span id="quarter-progress">87%</span></div>
+            <div>Ranking: <span id="ranking">#3</span></div>
+            <div>Velocity: <span id="velocity">12 days</span></div>
+        </div>
+        
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+    <script src="js/environments.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        // Initialize after everything loads but WITHOUT advanced interactions to avoid errors
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (typeof THREE !== 'undefined') {
+                    console.log('Three.js loaded successfully:', THREE.REVISION);
+                    try {
+                        // Create dashboard but skip advanced interactions file to avoid errors
+                        window.dashboard = new LuxuryDashboard();
+                        console.log('Dashboard created successfully!');
+                    } catch (error) {
+                        console.error('Dashboard creation error:', error);
+                        document.getElementById('loading').innerHTML = `
+                            <div style="color: #ff6666; text-align: center;">
+                                <h3>Dashboard Error</h3>
+                                <p>${error.message}</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    console.error('Three.js still not available');
+                    document.getElementById('loading').innerHTML = `
+                        <div style="color: #B7895F; text-align: center;">
+                            <h3>Loading Issue</h3>
+                            <p>Please refresh the page</p>
+                        </div>
+                    `;
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>

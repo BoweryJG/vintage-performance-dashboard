@@ -45,9 +45,11 @@ class LuxuryDashboard {
         this.setupScene();
         console.log('Scene created, background:', this.scene.background);
         this.setupCamera();
-        console.log('Camera position:', this.camera.position, 'looking at: (0,0,2)');
+        console.log('Camera position:', this.camera.position.x, this.camera.position.y, this.camera.position.z, 'looking at: (0,0,2)');
         this.setupRenderer();
-        console.log('Renderer setup complete, size:', this.renderer.getSize(new THREE.Vector2()));
+        const size = new THREE.Vector2();
+        this.renderer.getSize(size);
+        console.log('Renderer setup complete, size:', size.x, 'x', size.y);
         this.setupLights();
         console.log('Lights added to scene');
         this.createDashboard();
@@ -71,10 +73,15 @@ class LuxuryDashboard {
     }
     
     setupScene() {
-        this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x001122); // FORCE visible background
-        this.scene.fog = new THREE.Fog(0x0B4D3B, 10, 50);
-        console.log('Scene background set to blue');
+        try {
+            this.scene = new THREE.Scene();
+            const bgColor = new THREE.Color(0x001122);
+            this.scene.background = bgColor;
+            this.scene.fog = new THREE.Fog(0x0B4D3B, 10, 50);
+            console.log('Scene background set to:', bgColor.getHexString());
+        } catch (error) {
+            console.error('Scene setup error:', error);
+        }
     }
     
     setupCamera() {
@@ -356,17 +363,25 @@ class LuxuryDashboard {
     
     setupEnvironmentManager() {
         try {
+            console.log('Attempting to create EnvironmentManager...');
             this.environmentManager = new EnvironmentManager(this.scene);
+            console.log('EnvironmentManager created successfully');
         } catch (error) {
             console.warn('Environment manager failed to initialize:', error);
-            // Create simple fallback background
+            console.log('Creating fallback background...');
             this.createSimpleBackground();
         }
     }
     
     setupAdvancedInteractions() {
         try {
-            this.advancedInteractions = new AdvancedInteractions(this);
+            if (typeof AdvancedInteractions !== 'undefined') {
+                this.advancedInteractions = new AdvancedInteractions(this);
+                console.log('Advanced interactions initialized successfully');
+            } else {
+                console.log('AdvancedInteractions class not available, using basic interactions');
+                this.setupBasicEventListeners();
+            }
         } catch (error) {
             console.warn('Advanced interactions failed to initialize:', error);
             // Fall back to basic event listeners
@@ -463,8 +478,11 @@ class LuxuryDashboard {
         this.salesData.quarterProgress += (Math.random() - 0.5) * 2;
         this.salesData.quarterProgress = Math.max(0, Math.min(100, this.salesData.quarterProgress));
         
-        // Update HUD
-        document.getElementById('quarter-progress').textContent = Math.round(this.salesData.quarterProgress) + '%';
+        // Update HUD (with error handling)
+        const progressElement = document.getElementById('quarter-progress');
+        if (progressElement) {
+            progressElement.textContent = Math.round(this.salesData.quarterProgress) + '%';
+        }
         
         // Update main gauge
         if (this.gauges[0]) {
@@ -473,30 +491,45 @@ class LuxuryDashboard {
     }
     
     animate() {
-        requestAnimationFrame(() => this.animate());
-        
-        // Animate environment
-        if (this.environmentManager && this.environmentManager.animate) {
-            this.environmentManager.animate();
-        } else if (this.backgroundEnvironment) {
-            this.backgroundEnvironment.rotation.y += 0.0002;
+        try {
+            requestAnimationFrame(() => this.animate());
+            
+            // Animate environment
+            if (this.environmentManager && this.environmentManager.animate) {
+                this.environmentManager.animate();
+            } else if (this.backgroundEnvironment) {
+                this.backgroundEnvironment.rotation.y += 0.0002;
+            }
+            
+            // Subtle dashboard breathing effect
+            if (this.dashboardGroup) {
+                this.dashboardGroup.position.y = Math.sin(Date.now() * 0.001) * 0.02;
+            }
+            
+            // Update data occasionally
+            if (Math.random() < 0.001) {
+                this.updateSalesData();
+            }
+            
+            // Dynamic environment switching based on performance
+            if (this.environmentManager && this.environmentManager.switchEnvironment && Math.random() < 0.0001) {
+                const performance = this.salesData.quarterProgress;
+                this.environmentManager.switchEnvironment('auto', performance);
+            }
+            
+            // CRITICAL: Actually render the scene
+            if (this.renderer && this.scene && this.camera) {
+                this.renderer.render(this.scene, this.camera);
+            } else {
+                console.error('Missing renderer components:', {
+                    renderer: !!this.renderer,
+                    scene: !!this.scene, 
+                    camera: !!this.camera
+                });
+            }
+        } catch (error) {
+            console.error('Animation loop error:', error);
         }
-        
-        // Subtle dashboard breathing effect
-        this.dashboardGroup.position.y = Math.sin(Date.now() * 0.001) * 0.02;
-        
-        // Update data occasionally
-        if (Math.random() < 0.001) {
-            this.updateSalesData();
-        }
-        
-        // Dynamic environment switching based on performance
-        if (this.environmentManager && this.environmentManager.switchEnvironment && Math.random() < 0.0001) {
-            const performance = this.salesData.quarterProgress;
-            this.environmentManager.switchEnvironment('auto', performance);
-        }
-        
-        this.renderer.render(this.scene, this.camera);
     }
 }
 

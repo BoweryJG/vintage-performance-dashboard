@@ -48,8 +48,8 @@ class AdvancedInteractions {
         const raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(mouse, this.dashboard.camera);
         
-        // Check if clicking on a gauge needle
-        const needles = this.dashboard.gauges.map(g => g.needle);
+        // Check if clicking on a gauge needle (with error handling)
+        const needles = this.dashboard.gauges.filter(g => g && g.needle).map(g => g.needle);
         const intersects = raycaster.intersectObjects(needles);
         
         if (intersects.length > 0) {
@@ -79,9 +79,10 @@ class AdvancedInteractions {
             
             this.dragGauge.needle.rotation.z = clampedAngle;
             
-            // Update the gauge value
+            // Update the gauge value (with error handling)
             const normalizedValue = (clampedAngle - minAngle) / (maxAngle - minAngle);
-            const newValue = normalizedValue * this.dragGauge.config.max;
+            const maxValue = this.dragGauge.config ? this.dragGauge.config.max : 100;
+            const newValue = normalizedValue * maxValue;
             this.dragGauge.currentValue = newValue;
             
             // Provide continuous haptic feedback during drag
@@ -239,11 +240,12 @@ class AdvancedInteractions {
     }
     
     snapToIncrement(gauge) {
-        const increment = gauge.config.max / 10; // 10 major divisions
+        const maxValue = gauge.config ? gauge.config.max : 100;
+        const increment = maxValue / 10; // 10 major divisions
         const snappedValue = Math.round(gauge.currentValue / increment) * increment;
         
         // Animate to snapped position
-        const targetAngle = this.dashboard.valueToAngle(snappedValue, gauge.config.max);
+        const targetAngle = this.dashboard.valueToAngle(snappedValue, maxValue);
         this.animateNeedleToAngle(gauge, targetAngle);
         
         gauge.currentValue = snappedValue;
@@ -290,9 +292,11 @@ class AdvancedInteractions {
     resetDashboard() {
         // Reset all gauges to their original values
         this.dashboard.gauges.forEach(gauge => {
-            const targetAngle = this.dashboard.valueToAngle(gauge.config.value, gauge.config.max);
-            this.animateNeedleToAngle(gauge, targetAngle);
-            gauge.currentValue = gauge.config.value;
+            if (gauge && gauge.config) {
+                const targetAngle = this.dashboard.valueToAngle(gauge.config.value, gauge.config.max);
+                this.animateNeedleToAngle(gauge, targetAngle);
+                gauge.currentValue = gauge.config.value;
+            }
         });
         
         // Reset camera position
@@ -311,10 +315,11 @@ class AdvancedInteractions {
         if (!gauge) return;
         
         // Animate camera to focus on specific gauge
+        const pos = gauge.config ? gauge.config.position : { x: 0, y: 0, z: 0 };
         const targetPosition = new THREE.Vector3(
-            gauge.config.position.x,
-            gauge.config.position.y + 1,
-            gauge.config.position.z + 3
+            pos.x,
+            pos.y + 1,
+            pos.z + 3
         );
         
         this.animateCameraTo(targetPosition);

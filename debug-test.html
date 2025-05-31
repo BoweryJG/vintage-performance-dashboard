@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test - Luxury Dashboard</title>
+    <style>
+        body { margin: 0; background: #000; color: white; font-family: Arial; }
+        canvas { display: block; }
+        #console { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); padding: 10px; width: 300px; height: 200px; overflow-y: scroll; font-size: 10px; }
+    </style>
+</head>
+<body>
+    <div id="console">Console:</div>
+    <canvas id="canvas"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+    <script>
+        // Capture console output
+        const consoleDiv = document.getElementById('console');
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            consoleDiv.innerHTML += args.join(' ') + '<br>';
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            consoleDiv.innerHTML += '<span style="color:red">ERROR: ' + args.join(' ') + '</span><br>';
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            originalError.apply(console, args);
+        };
+
+        // Test Three.js setup
+        console.log('Starting debug test...');
+        
+        if (typeof THREE === 'undefined') {
+            console.error('Three.js not loaded!');
+        } else {
+            console.log('Three.js loaded successfully, version:', THREE.REVISION);
+            
+            try {
+                // Basic scene setup
+                const scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x001122);
+                console.log('Scene created successfully');
+                
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.set(0, 2, 5);
+                console.log('Camera created successfully');
+                
+                const renderer = new THREE.WebGLRenderer({ 
+                    canvas: document.getElementById('canvas'),
+                    antialias: true,
+                    alpha: false
+                });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setClearColor(0x001122, 1.0);
+                console.log('Renderer created successfully');
+                
+                // Add lights
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+                scene.add(ambientLight);
+                console.log('Ambient light added');
+                
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+                directionalLight.position.set(5, 10, 5);
+                scene.add(directionalLight);
+                console.log('Directional light added');
+                
+                // Test dashboard geometry with CORRECT orientation
+                const dashGeometry = new THREE.CylinderGeometry(6, 6, 0.8, 32, 1, false, 0, Math.PI);
+                const dashMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+                const dashboard = new THREE.Mesh(dashGeometry, dashMaterial);
+                dashboard.rotation.x = Math.PI / 6;    // Tilt toward user
+                dashboard.rotation.y = Math.PI;        // CRITICAL: Face the curve toward user
+                dashboard.position.y = -1;
+                scene.add(dashboard);
+                console.log('Dashboard created with correct orientation');
+                
+                // Test cube for verification
+                const testGeometry = new THREE.BoxGeometry(1, 1, 1);
+                const testMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+                const testCube = new THREE.Mesh(testGeometry, testMaterial);
+                testCube.position.set(3, 2, 3);
+                scene.add(testCube);
+                console.log('Test cube added at (3,2,3)');
+                
+                // Simple gauge test
+                const gaugeBase = new THREE.CylinderGeometry(1, 1, 0.1, 16);
+                const gaugeMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+                const gauge = new THREE.Mesh(gaugeBase, gaugeMaterial);
+                gauge.position.set(0, 0.5, 2);
+                gauge.rotation.x = -Math.PI / 2;
+                scene.add(gauge);
+                console.log('Test gauge added');
+                
+                // Animate function
+                function animate() {
+                    requestAnimationFrame(animate);
+                    testCube.rotation.x += 0.01;
+                    testCube.rotation.y += 0.01;
+                    renderer.render(scene, camera);
+                }
+                
+                // Start animation
+                animate();
+                console.log('Animation started - should see rotating red cube and curved dashboard');
+                
+            } catch (error) {
+                console.error('Setup error:', error.message);
+                console.error('Stack:', error.stack);
+            }
+        }
+    </script>
+</body>
+</html>
