@@ -1,9 +1,10 @@
 class EnvironmentManager {
-    constructor(scene) {
+    constructor(scene, particleMultiplier = 1.0) {
         this.scene = scene;
         this.currentEnvironment = null;
         this.environments = {};
         this.transitionDuration = 3000;
+        this.particleMultiplier = particleMultiplier;
         
         this.createEnvironments();
     }
@@ -29,7 +30,8 @@ class EnvironmentManager {
         const starPositions = [];
         const starColors = [];
         
-        for (let i = 0; i < 2000; i++) {
+        const starCount = Math.floor(2000 * this.particleMultiplier);
+        for (let i = 0; i < starCount; i++) {
             starPositions.push(
                 (Math.random() - 0.5) * 200,
                 (Math.random() - 0.5) * 200,
@@ -68,7 +70,8 @@ class EnvironmentManager {
         group.add(nebula);
         
         // Shooting stars
-        for (let i = 0; i < 5; i++) {
+        const shootingStarCount = Math.floor(5 * this.particleMultiplier);
+        for (let i = 0; i < shootingStarCount; i++) {
             const shootingStar = this.createShootingStar();
             group.add(shootingStar);
         }
@@ -118,7 +121,8 @@ class EnvironmentManager {
         const particleGeometry = new THREE.BufferGeometry();
         const particlePositions = [];
         
-        for (let i = 0; i < 1000; i++) {
+        const particleCount = Math.floor(1000 * this.particleMultiplier);
+        for (let i = 0; i < particleCount; i++) {
             particlePositions.push(
                 (Math.random() - 0.5) * 100,
                 Math.random() * 50,
@@ -139,7 +143,8 @@ class EnvironmentManager {
         group.add(particles);
         
         // Coral structures
-        for (let i = 0; i < 8; i++) {
+        const coralCount = Math.floor(8 * this.particleMultiplier);
+        for (let i = 0; i < coralCount; i++) {
             const coral = this.createCoral();
             coral.position.set(
                 (Math.random() - 0.5) * 80,
@@ -189,7 +194,8 @@ class EnvironmentManager {
         const sandGeometry = new THREE.BufferGeometry();
         const sandPositions = [];
         
-        for (let i = 0; i < 500; i++) {
+        const sandParticleCount = Math.floor(500 * this.particleMultiplier);
+        for (let i = 0; i < sandParticleCount; i++) {
             sandPositions.push(
                 (Math.random() - 0.5) * 150,
                 Math.random() * 30,
@@ -210,7 +216,8 @@ class EnvironmentManager {
         group.add(sand);
         
         // Desert plants
-        for (let i = 0; i < 12; i++) {
+        const cactusCount = Math.floor(12 * this.particleMultiplier);
+        for (let i = 0; i < cactusCount; i++) {
             const cactus = this.createCactus();
             cactus.position.set(
                 (Math.random() - 0.5) * 100,
@@ -251,7 +258,8 @@ class EnvironmentManager {
         group.add(floor);
         
         // Trees
-        for (let i = 0; i < 20; i++) {
+        const treeCount = Math.floor(20 * this.particleMultiplier);
+        for (let i = 0; i < treeCount; i++) {
             const tree = this.createTree();
             tree.position.set(
                 (Math.random() - 0.5) * 120,
@@ -265,7 +273,8 @@ class EnvironmentManager {
         const fireflyGeometry = new THREE.BufferGeometry();
         const fireflyPositions = [];
         
-        for (let i = 0; i < 100; i++) {
+        const fireflyCount = Math.floor(100 * this.particleMultiplier);
+        for (let i = 0; i < fireflyCount; i++) {
             fireflyPositions.push(
                 (Math.random() - 0.5) * 80,
                 Math.random() * 20,
@@ -318,7 +327,8 @@ class EnvironmentManager {
         const snowGeometry = new THREE.BufferGeometry();
         const snowPositions = [];
         
-        for (let i = 0; i < 800; i++) {
+        const snowCount = Math.floor(800 * this.particleMultiplier);
+        for (let i = 0; i < snowCount; i++) {
             snowPositions.push(
                 (Math.random() - 0.5) * 100,
                 Math.random() * 50 + 10,
@@ -339,7 +349,8 @@ class EnvironmentManager {
         group.add(snow);
         
         // Ice formations
-        for (let i = 0; i < 10; i++) {
+        const iceCount = Math.floor(10 * this.particleMultiplier);
+        for (let i = 0; i < iceCount; i++) {
             const ice = this.createIceFormation();
             ice.position.set(
                 (Math.random() - 0.5) * 80,
@@ -496,5 +507,27 @@ class EnvironmentManager {
         if (this.currentEnvironment && this.currentEnvironment.animate) {
             this.currentEnvironment.animate();
         }
+    }
+    
+    updatePerformanceMultiplier(newMultiplier) {
+        this.particleMultiplier = newMultiplier;
+        
+        // Recreate environments with new performance settings
+        const currentEnvName = this.getCurrentEnvironmentName();
+        this.createEnvironments();
+        
+        // Switch to the current environment to apply changes
+        if (currentEnvName) {
+            this.switchEnvironment(currentEnvName);
+        }
+    }
+    
+    getCurrentEnvironmentName() {
+        for (const [name, env] of Object.entries(this.environments)) {
+            if (env === this.currentEnvironment) {
+                return name;
+            }
+        }
+        return 'space'; // Default fallback
     }
 }

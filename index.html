@@ -72,6 +72,73 @@
             text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
         }
         
+        /* Performance & Color Controls */
+        #controls-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        #color-theme-toggle {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            border: 2px solid #E5E4E2;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #E5E4E2;
+            font-family: 'Orbitron', monospace;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        #color-theme-toggle:hover {
+            background: linear-gradient(135deg, #FF2D00, #E52B00);
+            color: #FFF;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 45, 0, 0.7);
+        }
+        
+        #performance-toggle {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            border: 2px solid #E5E4E2;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #E5E4E2;
+            font-family: 'Orbitron', monospace;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        #performance-toggle:hover {
+            background: linear-gradient(135deg, #00AA00, #008800);
+            color: #FFF;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 170, 0, 0.7);
+        }
+        
+        #fps-monitor {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #E5E4E2;
+            border-radius: 6px;
+            padding: 5px 8px;
+            color: #00FF41;
+            font-family: 'Orbitron', monospace;
+            font-size: 9px;
+            text-align: center;
+            min-width: 80px;
+        }
+        
         #environment-selector {
             position: absolute;
             bottom: 20px;
@@ -381,6 +448,13 @@
         </div>
     </div>
     
+    <!-- Performance & Color Controls -->
+    <div id="controls-panel">
+        <button id="color-theme-toggle">Theme: Ferrari</button>
+        <button id="performance-toggle">Performance: Auto</button>
+        <div id="fps-monitor">FPS: --</div>
+    </div>
+    
     <div id="environment-selector">
         <button class="env-btn active" data-env="space">Deep Space</button>
         <button class="env-btn" data-env="ocean">Ocean Depths</button>
@@ -445,6 +519,91 @@
         let isDragging = false;
         let dragOffset = { x: 0, y: 0 };
         let gaugeMeshes = [];
+        
+        // Performance System
+        let performanceMode = 'auto'; // auto, high, medium, low
+        let currentFPS = 0;
+        let frameCount = 0;
+        let lastFPSUpdate = Date.now();
+        let particleMultiplier = 1.0;
+        
+        // Color Theme System
+        let currentColorTheme = 0;
+        const colorThemes = [
+            { name: 'Ferrari', primary: '#FF2D00', secondary: '#E5E4E2', accent: '#D4AF37', bg: '#0a0a0a' },
+            { name: 'Lamborghini', primary: '#FF8C00', secondary: '#FFD700', accent: '#000000', bg: '#1a1a0a' },
+            { name: 'McLaren', primary: '#FF6600', secondary: '#FFFFFF', accent: '#000000', bg: '#0a0a0a' },
+            { name: 'Bugatti', primary: '#0066CC', secondary: '#FFFFFF', accent: '#FF0000', bg: '#000011' },
+            { name: 'Koenigsegg', primary: '#000000', secondary: '#FFFFFF', accent: '#FF0000', bg: '#111111' },
+            { name: 'Pagani', primary: '#4169E1', secondary: '#C0C0C0', accent: '#FFD700', bg: '#0a0a1a' },
+            { name: 'Aston Martin', primary: '#00AA00', secondary: '#E5E4E2', accent: '#FFD700', bg: '#0a1a0a' },
+            { name: 'Bentley', primary: '#8B0000', secondary: '#F5F5DC', accent: '#DAA520', bg: '#1a0a0a' },
+            { name: 'Rolls Royce', primary: '#800080', secondary: '#E6E6FA', accent: '#C0C0C0', bg: '#1a0a1a' },
+            { name: 'Maserati', primary: '#000080', secondary: '#E0E0E0', accent: '#FF6347', bg: '#0a0a1a' },
+            
+            // Luxury Watch Brands
+            { name: 'Rolex', primary: '#006400', secondary: '#FFD700', accent: '#FFFFFF', bg: '#0a1a0a' },
+            { name: 'Patek Philippe', primary: '#4B0082', secondary: '#E6E6FA', accent: '#FFD700', bg: '#1a0a1a' },
+            { name: 'Audemars Piguet', primary: '#FF4500', secondary: '#000000', accent: '#C0C0C0', bg: '#1a1a0a' },
+            { name: 'Vacheron Constantin', primary: '#8B4513', secondary: '#F5DEB3', accent: '#DAA520', bg: '#1a1a0a' },
+            { name: 'Omega', primary: '#FF0000', secondary: '#FFFFFF', accent: '#000000', bg: '#1a0a0a' },
+            
+            // Jewelry Houses
+            { name: 'Cartier', primary: '#DC143C', secondary: '#F5F5F5', accent: '#FFD700', bg: '#1a0a0a' },
+            { name: 'Tiffany', primary: '#0ABAB5', secondary: '#FFFFFF', accent: '#C0C0C0', bg: '#0a1a1a' },
+            { name: 'Van Cleef', primary: '#663399', secondary: '#E6E6FA', accent: '#FFD700', bg: '#1a0a1a' },
+            { name: 'Bulgari', primary: '#000000', secondary: '#FFFFFF', accent: '#FF69B4', bg: '#111111' },
+            { name: 'Graff', primary: '#4169E1', secondary: '#E0E6FF', accent: '#FFFFFF', bg: '#0a0a1a' },
+            
+            // Prestige Brands
+            { name: 'Hermès', primary: '#FF8C00', secondary: '#8B4513', accent: '#FFD700', bg: '#1a1a0a' },
+            { name: 'Louis Vuitton', primary: '#8B4513', secondary: '#DAA520', accent: '#000000', bg: '#1a1a0a' },
+            { name: 'Chanel', primary: '#000000', secondary: '#FFFFFF', accent: '#FFB6C1', bg: '#111111' },
+            { name: 'Dior', primary: '#C0C0C0', secondary: '#FFFFFF', accent: '#FF1493', bg: '#1a1a1a' },
+            { name: 'Gucci', primary: '#228B22', secondary: '#FF0000', accent: '#FFD700', bg: '#0a1a0a' },
+            
+            // Aviation Themes
+            { name: 'F-22 Raptor', primary: '#708090', secondary: '#F0F8FF', accent: '#4169E1', bg: '#0a0a1a' },
+            { name: 'SR-71 Blackbird', primary: '#2F4F4F', secondary: '#C0C0C0', accent: '#FF4500', bg: '#0a0a0a' },
+            { name: 'Blue Angels', primary: '#0000FF', secondary: '#FFD700', accent: '#FFFFFF', bg: '#0a0a1a' },
+            { name: 'Thunderbirds', primary: '#FF0000', secondary: '#FFFFFF', accent: '#0000FF', bg: '#1a0a0a' },
+            { name: 'Top Gun', primary: '#000080', secondary: '#FFD700', accent: '#FFFFFF', bg: '#0a0a1a' },
+            
+            // Space/Sci-Fi Themes  
+            { name: 'NASA', primary: '#FF0000', secondary: '#0000FF', accent: '#FFFFFF', bg: '#000011' },
+            { name: 'SpaceX', primary: '#000000', secondary: '#FFFFFF', accent: '#0080FF', bg: '#111111' },
+            { name: 'Cyberpunk', primary: '#FF0080', secondary: '#00FFFF', accent: '#FFFF00', bg: '#0a0a1a' },
+            { name: 'Matrix', primary: '#00FF00', secondary: '#000000', accent: '#FFFFFF', bg: '#001100' },
+            { name: 'Tron', primary: '#00FFFF', secondary: '#000000', accent: '#FF8C00', bg: '#000011' },
+            
+            // Gaming Themes
+            { name: 'Razer', primary: '#00FF00', secondary: '#000000', accent: '#FFFFFF', bg: '#0a1a0a' },
+            { name: 'Alienware', primary: '#0080FF', secondary: '#000000', accent: '#FFFFFF', bg: '#0a0a1a' },
+            { name: 'ROG', primary: '#FF0040', secondary: '#000000', accent: '#C0C0C0', bg: '#1a0a0a' },
+            { name: 'Corsair', primary: '#FFD700', secondary: '#000000', accent: '#FFFFFF', bg: '#1a1a0a' },
+            { name: 'SteelSeries', primary: '#FF6600', secondary: '#000000', accent: '#FFFFFF', bg: '#1a0a0a' },
+            
+            // Precious Metals
+            { name: 'Platinum', primary: '#E5E4E2', secondary: '#FFFFFF', accent: '#C0C0C0', bg: '#1a1a1a' },
+            { name: 'Rose Gold', primary: '#E8B4A0', secondary: '#FFFFFF', accent: '#DAA520', bg: '#1a1a1a' },
+            { name: 'White Gold', primary: '#F5F5F5', secondary: '#E5E5E5', accent: '#C0C0C0', bg: '#1a1a1a' },
+            { name: 'Palladium', primary: '#CED0DD', secondary: '#FFFFFF', accent: '#B0C4DE', bg: '#1a1a1a' },
+            { name: 'Titanium', primary: '#878681', secondary: '#C0C0C0', accent: '#FFFFFF', bg: '#1a1a1a' },
+            
+            // Gemstone Themes
+            { name: 'Emerald', primary: '#50C878', secondary: '#FFFFFF', accent: '#FFD700', bg: '#0a1a0a' },
+            { name: 'Ruby', primary: '#E0115F', secondary: '#FFFFFF', accent: '#FFD700', bg: '#1a0a0a' },
+            { name: 'Sapphire', primary: '#0F52BA', secondary: '#FFFFFF', accent: '#C0C0C0', bg: '#0a0a1a' },
+            { name: 'Diamond', primary: '#FFFFFF', secondary: '#E5E5E5', accent: '#4169E1', bg: '#1a1a1a' },
+            { name: 'Amethyst', primary: '#9966CC', secondary: '#E6E6FA', accent: '#FFD700', bg: '#1a0a1a' },
+            
+            // Ocean Themes
+            { name: 'Deep Ocean', primary: '#003366', secondary: '#87CEEB', accent: '#20B2AA', bg: '#001122' },
+            { name: 'Arctic Ice', primary: '#B0E0E6', secondary: '#FFFFFF', accent: '#4682B4', bg: '#0a1a1a' },
+            { name: 'Coral Reef', primary: '#FF7F50', secondary: '#40E0D0', accent: '#FFD700', bg: '#0a1a1a' },
+            { name: 'Midnight Blue', primary: '#191970', secondary: '#E0E6FF', accent: '#FFD700', bg: '#0a0a1a' },
+            { name: 'Turquoise', primary: '#40E0D0', secondary: '#FFFFFF', accent: '#FF6347', bg: '#0a1a1a' }
+        ];
         
         // Elite Performance Data with realistic goal-based ranges
         const performanceData = {
@@ -749,7 +908,8 @@
             const bubblePositions = [];
             const bubbleSizes = [];
             
-            for (let i = 0; i < 150; i++) {
+            const bubbleCount = Math.floor(150 * particleMultiplier);
+            for (let i = 0; i < bubbleCount; i++) {
                 bubblePositions.push(
                     (Math.random() - 0.5) * 200,
                     Math.random() * 100 - 50,
@@ -772,7 +932,7 @@
             
             const bubbles = new THREE.Points(bubbleGeometry, bubbleMaterial);
             bubbles.userData.isEnvironment = true;
-            bubbles.userData.isBubbles = true;
+            bubbles.userData.isBubbleSystem = true;
             scene.add(bubbles);
         }
         
@@ -866,7 +1026,8 @@
             const distantPositions = [];
             const distantColors = [];
             
-            for (let i = 0; i < 3000; i++) {
+            const distantStarCount = Math.floor(3000 * particleMultiplier);
+            for (let i = 0; i < distantStarCount; i++) {
                 distantPositions.push(
                     (Math.random() - 0.5) * 2000,
                     (Math.random() - 0.5) * 2000,
@@ -906,7 +1067,8 @@
             const brightPositions = [];
             const brightSizes = [];
             
-            for (let i = 0; i < 200; i++) {
+            const brightStarCount = Math.floor(200 * particleMultiplier);
+            for (let i = 0; i < brightStarCount; i++) {
                 brightPositions.push(
                     (Math.random() - 0.5) * 800,
                     (Math.random() - 0.5) * 800,
@@ -1090,7 +1252,8 @@
             const sandPositions = [];
             const sandVelocities = [];
             
-            for (let i = 0; i < 300; i++) {
+            const sandCount = Math.floor(300 * particleMultiplier);
+            for (let i = 0; i < sandCount; i++) {
                 sandPositions.push(
                     (Math.random() - 0.5) * 500,
                     Math.random() * 100 - 20,
@@ -1685,6 +1848,16 @@
                     closeModal();
                 }
             });
+            
+            // Performance toggle
+            document.getElementById('performance-toggle').addEventListener('click', () => {
+                cyclePerformanceMode();
+            });
+            
+            // Color theme toggle
+            document.getElementById('color-theme-toggle').addEventListener('click', () => {
+                cycleColorTheme();
+            });
         }
         
         function onMouseMove(event) {
@@ -1924,6 +2097,150 @@
             });
         }
         
+        // Performance Optimization System
+        function detectDevicePerformance() {
+            const gpu = renderer.getContext().getExtension('WEBGL_debug_renderer_info');
+            const gpuInfo = gpu ? renderer.getContext().getParameter(gpu.UNMASKED_RENDERER_WEBGL) : '';
+            
+            // Simple performance detection based on device characteristics
+            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isLowEnd = /Mali-400|Adreno \(TM\) 2|PowerVR SGX 53/i.test(gpuInfo);
+            
+            if (isMobile || isLowEnd) {
+                return 'low';
+            } else if (window.innerWidth < 1200) {
+                return 'medium';
+            } else {
+                return 'high';
+            }
+        }
+        
+        function cyclePerformanceMode() {
+            const modes = ['auto', 'high', 'medium', 'low'];
+            const currentIndex = modes.indexOf(performanceMode);
+            performanceMode = modes[(currentIndex + 1) % modes.length];
+            
+            updatePerformanceSettings();
+            updatePerformanceToggleText();
+        }
+        
+        function updatePerformanceSettings() {
+            let targetMultiplier = 1.0;
+            
+            if (performanceMode === 'auto') {
+                const detected = detectDevicePerformance();
+                targetMultiplier = detected === 'low' ? 0.3 : detected === 'medium' ? 0.6 : 1.0;
+            } else if (performanceMode === 'low') {
+                targetMultiplier = 0.3;
+            } else if (performanceMode === 'medium') {
+                targetMultiplier = 0.6;
+            } else {
+                targetMultiplier = 1.0;
+            }
+            
+            particleMultiplier = targetMultiplier;
+            console.log(`🔧 Performance mode: ${performanceMode}, multiplier: ${particleMultiplier}`);
+        }
+        
+        function updatePerformanceToggleText() {
+            const button = document.getElementById('performance-toggle');
+            button.textContent = `Performance: ${performanceMode.charAt(0).toUpperCase() + performanceMode.slice(1)}`;
+        }
+        
+        function updateFPSMonitor() {
+            frameCount++;
+            const now = Date.now();
+            
+            if (now - lastFPSUpdate >= 1000) {
+                currentFPS = Math.round((frameCount * 1000) / (now - lastFPSUpdate));
+                document.getElementById('fps-monitor').textContent = `FPS: ${currentFPS}`;
+                
+                frameCount = 0;
+                lastFPSUpdate = now;
+                
+                // Auto-adjust performance if in auto mode
+                if (performanceMode === 'auto') {
+                    if (currentFPS < 20 && particleMultiplier > 0.3) {
+                        particleMultiplier = Math.max(0.3, particleMultiplier - 0.1);
+                        console.log(`📉 Auto-reducing performance: ${particleMultiplier}`);
+                    } else if (currentFPS > 50 && particleMultiplier < 1.0) {
+                        particleMultiplier = Math.min(1.0, particleMultiplier + 0.1);
+                        console.log(`📈 Auto-increasing performance: ${particleMultiplier}`);
+                    }
+                }
+            }
+        }
+        
+        // Color Theme System
+        function cycleColorTheme() {
+            currentColorTheme = (currentColorTheme + 1) % colorThemes.length;
+            applyColorTheme();
+            updateColorThemeToggleText();
+        }
+        
+        function applyColorTheme() {
+            const theme = colorThemes[currentColorTheme];
+            
+            // Update CSS custom properties for dynamic theming
+            document.documentElement.style.setProperty('--theme-primary', theme.primary);
+            document.documentElement.style.setProperty('--theme-secondary', theme.secondary);
+            document.documentElement.style.setProperty('--theme-accent', theme.accent);
+            document.documentElement.style.setProperty('--theme-bg', theme.bg);
+            
+            // Update background
+            document.body.style.background = `radial-gradient(ellipse at center, ${theme.bg} 0%, #000000 100%)`;
+            
+            // Update existing materials and elements
+            updateThemeColors(theme);
+            
+            console.log(`🎨 Applied theme: ${theme.name}`);
+        }
+        
+        function updateThemeColors(theme) {
+            // Update needle colors
+            needles.forEach(needle => {
+                if (needle.userData.isNeedle && needle.material) {
+                    needle.material.color.setHex(parseInt(theme.primary.replace('#', '0x')));
+                    needle.material.emissive.setHex(parseInt(theme.primary.replace('#', '0x')));
+                }
+            });
+            
+            // Update gauge bezels with theme colors
+            scene.children.forEach(child => {
+                if (child.material && child.geometry && child.geometry.type === 'TorusGeometry') {
+                    const colorValue = Math.random() > 0.5 ? theme.primary : theme.accent;
+                    child.material.color.setHex(parseInt(colorValue.replace('#', '0x')));
+                    child.material.emissive.setHex(parseInt(colorValue.replace('#', '0x')));
+                }
+            });
+            
+            // Update HUD colors
+            const hudElements = document.querySelectorAll('#hud, #hud *');
+            hudElements.forEach(el => {
+                if (el.classList.contains('metric-value')) {
+                    el.style.color = theme.primary;
+                    el.style.textShadow = `0 0 5px ${theme.primary}80`;
+                }
+            });
+            
+            // Update environment selector colors
+            document.querySelectorAll('.env-btn').forEach(btn => {
+                btn.style.borderColor = theme.secondary;
+                btn.style.color = theme.secondary;
+            });
+            
+            // Update control panel colors
+            document.querySelectorAll('#controls-panel button').forEach(btn => {
+                btn.style.borderColor = theme.secondary;
+                btn.style.color = theme.secondary;
+            });
+        }
+        
+        function updateColorThemeToggleText() {
+            const button = document.getElementById('color-theme-toggle');
+            button.textContent = `Theme: ${colorThemes[currentColorTheme].name}`;
+        }
+        
         function handleNeedleInteraction() {
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(needles);
@@ -2030,8 +2347,73 @@
             // This function can be used for any additional spinning-related updates if needed
         }
         
+        function adjustPerformanceLevel() {
+            let newMultiplier = particleMultiplier;
+            
+            if (performanceMode === 'auto') {
+                if (currentFPS < 30) {
+                    newMultiplier = Math.max(0.3, particleMultiplier * 0.8);
+                } else if (currentFPS > 50) {
+                    newMultiplier = Math.min(1.0, particleMultiplier * 1.1);
+                }
+            } else if (performanceMode === 'low') {
+                newMultiplier = 0.3;
+            } else if (performanceMode === 'medium') {
+                newMultiplier = 0.6;
+            } else if (performanceMode === 'high') {
+                newMultiplier = 1.0;
+            }
+            
+            if (Math.abs(newMultiplier - particleMultiplier) > 0.05) {
+                particleMultiplier = newMultiplier;
+                recreateEnvironmentParticles();
+            }
+        }
+        
+        function recreateEnvironmentParticles() {
+            // Remove existing environment particles
+            const toRemove = [];
+            scene.children.forEach(child => {
+                if (child.userData.isEnvironment && 
+                    (child.userData.isStarField || child.userData.isBrightStars || 
+                     child.userData.isBubbleSystem || child.userData.isSandStorm)) {
+                    toRemove.push(child);
+                }
+            });
+            toRemove.forEach(child => scene.remove(child));
+            
+            // Recreate based on current environment
+            if (currentEnvironment === 'space') {
+                createStarField();
+            } else if (currentEnvironment === 'ocean') {
+                createBubbleSystem();
+            } else if (currentEnvironment === 'desert') {
+                createSandStorm();
+            }
+        }
+        
         function animate() {
             requestAnimationFrame(animate);
+            
+            // FPS monitoring
+            frameCount++;
+            const now = Date.now();
+            if (now - lastFPSUpdate > 1000) {
+                currentFPS = frameCount;
+                frameCount = 0;
+                lastFPSUpdate = now;
+                
+                // Update FPS display
+                const fpsDisplay = document.getElementById('fps-monitor');
+                if (fpsDisplay) {
+                    fpsDisplay.textContent = `${currentFPS} FPS`;
+                }
+                
+                // Auto-adjust performance
+                if (performanceMode === 'auto') {
+                    adjustPerformanceLevel();
+                }
+            }
             
             const time = Date.now() * 0.001;
             
@@ -2375,6 +2757,16 @@
         window.addEventListener('load', () => {
             if (typeof THREE !== 'undefined' && typeof gsap !== 'undefined') {
                 init();
+                
+                // Initialize performance system
+                const detectedPerformance = detectDevicePerformance();
+                setPerformanceMode('auto');
+                adjustPerformanceLevel();
+                
+                // Initialize color theme system
+                applyColorTheme(colorThemes[0]);
+                
+                console.log(`Performance system initialized: ${detectedPerformance} level detected`);
             } else {
                 console.error('Required libraries not loaded');
             }
