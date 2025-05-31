@@ -131,19 +131,93 @@
             transition: transform 0.1s ease;
         }
         
+        /* Ferrari/Cartier Luxury Mobile Optimization */
         @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+            
             #hud {
-                top: 10px;
-                left: 10px;
-                padding: 10px;
+                top: 5px;
+                left: 5px;
+                right: 5px;
+                padding: 8px;
+                font-size: 10px;
+                width: auto;
+                max-width: 200px;
             }
             
             .hud-title {
-                font-size: 12px;
+                font-size: 10px;
+                margin-bottom: 5px;
+                letter-spacing: 1px;
             }
             
             .metric {
-                font-size: 10px;
+                font-size: 9px;
+                margin: 3px 0;
+            }
+            
+            #environment-selector {
+                bottom: 5px;
+                left: 5px;
+                right: 5px;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .env-btn {
+                padding: 4px 6px;
+                margin: 1px;
+                font-size: 8px;
+                flex: 1;
+                min-width: 60px;
+            }
+            
+            #performance-indicator {
+                top: 5px;
+                right: 5px;
+                transform: none;
+            }
+            
+            .performance-ring {
+                width: 60px;
+                height: 60px;
+                border-width: 2px;
+            }
+            
+            .performance-value {
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #hud {
+                max-width: 180px;
+                padding: 6px;
+            }
+            
+            .hud-title {
+                font-size: 9px;
+            }
+            
+            .metric {
+                font-size: 8px;
+            }
+            
+            .env-btn {
+                font-size: 7px;
+                padding: 3px 4px;
+            }
+            
+            .performance-ring {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .performance-value {
+                font-size: 12px;
             }
         }
     </style>
@@ -202,14 +276,13 @@
         let mouse = new THREE.Vector2();
         let raycaster = new THREE.Raycaster();
         
-        // Elite Performance Data
+        // Elite Performance Data with realistic goal-based ranges
         const performanceData = {
-            revenueVelocity: { current: 87, target: 100, max: 120 },
-            quotaAchievement: { current: 127, target: 100, max: 150 },
-            pipelineHealth: { current: 94, target: 95, max: 100 },
-            winRate: { current: 73, target: 80, max: 100 },
-            activityScore: { current: 156, target: 150, max: 200 },
-            teamRanking: { current: 2, target: 1, max: 10 }
+            revenueVelocity: { current: 87, target: 100, min: 50, max: 120, unit: 'K/mo' },
+            quotaAchievement: { current: 127, target: 100, min: 60, max: 150, unit: '%' },
+            pipelineHealth: { current: 94, target: 95, min: 70, max: 100, unit: '%' },
+            winRate: { current: 73, target: 80, min: 40, max: 90, unit: '%' },
+            activityScore: { current: 156, target: 150, min: 100, max: 200, unit: '' }
         };
         
         // Luxury Materials
@@ -471,12 +544,46 @@
         }
         
         function createPerformanceGauges() {
+            // Mobile-optimized luxury gauge layout
+            const isMobile = window.innerWidth <= 768;
+            const baseSize = isMobile ? 0.8 : 1.0;
+            
             const gaugePositions = [
-                { pos: [0, 1, 2], size: 1.2, metric: 'revenueVelocity', label: 'REVENUE VELOCITY' },
-                { pos: [-3, 0.5, 2], size: 1.0, metric: 'quotaAchievement', label: 'QUOTA ACHIEVEMENT' },
-                { pos: [3, 0.5, 2], size: 1.0, metric: 'pipelineHealth', label: 'PIPELINE HEALTH' },
-                { pos: [-1.8, -0.8, 2], size: 0.8, metric: 'winRate', label: 'WIN RATE' },
-                { pos: [1.8, -0.8, 2], size: 0.8, metric: 'activityScore', label: 'ACTIVITY SCORE' }
+                { 
+                    pos: [0, isMobile ? 1.5 : 1.2, 2], 
+                    size: baseSize * 1.2, 
+                    metric: 'revenueVelocity', 
+                    label: 'REVENUE',
+                    needleStart: -Math.PI * 0.6 // Lower left start
+                },
+                { 
+                    pos: [isMobile ? -1.8 : -2.8, isMobile ? 0.2 : 0.3, 2], 
+                    size: baseSize, 
+                    metric: 'quotaAchievement', 
+                    label: 'QUOTA',
+                    needleStart: -Math.PI * 0.8 // Lower start
+                },
+                { 
+                    pos: [isMobile ? 1.8 : 2.8, isMobile ? 0.2 : 0.3, 2], 
+                    size: baseSize, 
+                    metric: 'pipelineHealth', 
+                    label: 'PIPELINE',
+                    needleStart: -Math.PI * 0.4 // Lower right start
+                },
+                { 
+                    pos: [isMobile ? -1.2 : -1.6, isMobile ? -1.2 : -1.0, 2], 
+                    size: baseSize * 0.9, 
+                    metric: 'winRate', 
+                    label: 'WIN RATE',
+                    needleStart: -Math.PI * 0.7 // Lower left start
+                },
+                { 
+                    pos: [isMobile ? 1.2 : 1.6, isMobile ? -1.2 : -1.0, 2], 
+                    size: baseSize * 0.9, 
+                    metric: 'activityScore', 
+                    label: 'ACTIVITY',
+                    needleStart: -Math.PI * 0.5 // Lower right start
+                }
             ];
             
             gaugePositions.forEach((config, index) => {
@@ -484,106 +591,222 @@
             });
         }
         
-        function createLuxuryGauge(config, index) {
-            const data = performanceData[config.metric];
+        function createGaugeFaceWithMetrics(config, data, index) {
+            const canvas = document.createElement('canvas');
+            const size = 512;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
             
-            // Gauge face
-            const faceGeometry = new THREE.CircleGeometry(config.size, 64);
-            const faceMaterial = new THREE.MeshLambertMaterial({
-                color: 0xF5F5DC,
-                emissive: 0x222222,
-                emissiveIntensity: 0.1
-            });
+            // Ferrari/Cartier luxury gradient - deep black to platinum
+            const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+            gradient.addColorStop(0, '#1a1a1a');      // Deep charcoal center
+            gradient.addColorStop(0.4, '#2d2d2d');    // Dark gray
+            gradient.addColorStop(0.8, '#404040');    // Medium gray
+            gradient.addColorStop(1, '#0d0d0d');      // Black edge
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+            ctx.fill();
             
-            const face = new THREE.Mesh(faceGeometry, faceMaterial);
-            face.position.set(...config.pos);
-            face.position.z += 0.02; // MOVE FACE FORWARD
-            face.receiveShadow = true;
-            scene.add(face);
+            // Luxury platinum rim
+            ctx.strokeStyle = '#E5E4E2';
+            ctx.lineWidth = 8;
+            ctx.shadowColor = '#E5E4E2';
+            ctx.shadowBlur = 20;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
             
-            // Bezel - different colors for each gauge (PROPERLY ALIGNED)
-            const bezelColors = [0xFFD700, 0x00FF41, 0x0088FF, 0xFF4444, 0xFF00FF];
-            const bezelGeometry = new THREE.TorusGeometry(config.size + 0.08, 0.03, 16, 64);
-            const bezelMaterial = new THREE.MeshLambertMaterial({
-                color: bezelColors[index],
-                emissive: bezelColors[index],
-                emissiveIntensity: 0.4
-            });
-            const bezel = new THREE.Mesh(bezelGeometry, bezelMaterial);
-            bezel.position.set(config.pos[0], config.pos[1], config.pos[2]);
-            bezel.position.z += 0.01; // BEZEL BEHIND FACE
-            bezel.rotation.x = 0; // Ensure no rotation
-            bezel.rotation.y = 0;
-            bezel.rotation.z = 0;
-            bezel.castShadow = true;
-            scene.add(bezel);
+            // Inner platinum accent ring
+            ctx.strokeStyle = '#D4AF37';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2 * 0.85, 0, Math.PI * 2);
+            ctx.stroke();
             
-            // Value tick marks with numbers
-            const maxValue = data.max;
-            for (let i = 0; i <= 10; i++) {
-                const percentage = i / 10;
-                const angle = -Math.PI * 0.75 + (Math.PI * 1.5 * percentage); // Same range as needles
-                const radius = config.size * 0.85;
-                const x = config.pos[0] + Math.cos(angle) * radius;
-                const y = config.pos[1] + Math.sin(angle) * radius;
-                
-                // Major tick marks every 2 steps, minor every step (HALF SIZE)
+            // Draw goal-based tick marks and numbers
+            const range = data.max - data.min;
+            const targetPosition = (data.target - data.min) / range;
+            
+            for (let i = 0; i <= 8; i++) {
+                const percentage = i / 8;
+                const angle = -Math.PI * 0.75 + (Math.PI * 1.5 * percentage);
                 const isMajor = i % 2 === 0;
-                const tickSize = isMajor ? 0.04 : 0.02;
                 
-                const markerGeometry = new THREE.PlaneGeometry(tickSize, tickSize * 2);
-                const markerMaterial = new THREE.MeshLambertMaterial({
-                    color: 0x000000,
-                    emissive: 0x333333,
-                    emissiveIntensity: 0.8
-                });
-                const marker = new THREE.Mesh(markerGeometry, markerMaterial);
-                marker.position.set(x, y, config.pos[2] + 0.04);
-                marker.rotation.z = angle + Math.PI/2; // Perpendicular to radius
-                scene.add(marker);
+                // Tick marks with luxury styling
+                const tickStart = isMajor ? 0.72 : 0.78;
+                const tickEnd = 0.88;
+                const startX = size/2 + Math.cos(angle) * (size/2 * tickStart);
+                const startY = size/2 + Math.sin(angle) * (size/2 * tickStart);
+                const endX = size/2 + Math.cos(angle) * (size/2 * tickEnd);
+                const endY = size/2 + Math.sin(angle) * (size/2 * tickEnd);
                 
-                // Add value labels for major ticks
+                // Gold accents for target area
+                const isNearTarget = Math.abs(percentage - targetPosition) < 0.15;
+                ctx.strokeStyle = isNearTarget ? '#D4AF37' : '#E5E4E2';
+                ctx.lineWidth = isMajor ? (isNearTarget ? 4 : 3) : 1;
+                ctx.shadowColor = isNearTarget ? '#D4AF37' : 'transparent';
+                ctx.shadowBlur = isNearTarget ? 8 : 0;
+                
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(endX, endY);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+                
+                // Numbers for major ticks (goal-based range)
                 if (isMajor) {
-                    const value = Math.round((percentage * maxValue));
-                    const labelRadius = config.size * 0.7;
-                    const labelX = config.pos[0] + Math.cos(angle) * labelRadius;
-                    const labelY = config.pos[1] + Math.sin(angle) * labelRadius;
+                    const value = Math.round(data.min + (range * percentage));
+                    const labelRadius = 0.62;
+                    const labelX = size/2 + Math.cos(angle) * (size/2 * labelRadius);
+                    const labelY = size/2 + Math.sin(angle) * (size/2 * labelRadius);
                     
-                    createTickLabel(value.toString(), labelX, labelY, config.pos[2] + 0.05);
+                    ctx.fillStyle = isNearTarget ? '#D4AF37' : '#E5E4E2';
+                    ctx.font = 'bold 20px Orbitron';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.shadowColor = isNearTarget ? '#D4AF37' : 'transparent';
+                    ctx.shadowBlur = isNearTarget ? 5 : 0;
+                    ctx.fillText(value.toString(), labelX, labelY);
+                    ctx.shadowBlur = 0;
                 }
             }
             
-            // TAPERED NEEDLE - thick at base, fine point - GAUGE STYLE
-            const needleLength = config.size * 0.75;
+            // Center area with luxury styling
+            const currentValue = Math.round(data.current);
+            
+            // Deep center background
+            ctx.fillStyle = 'rgba(0,0,0,0.9)';
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2 * 0.45, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Platinum center ring
+            ctx.strokeStyle = '#E5E4E2';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = '#E5E4E2';
+            ctx.shadowBlur = 15;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            
+            // Performance-based value color (Ferrari red accent)
+            let valueColor = '#FF2D00'; // Ferrari red default
+            const targetDiff = Math.abs(currentValue - data.target);
+            if (targetDiff <= 5) valueColor = '#D4AF37';      // Gold (on target)
+            else if (targetDiff <= 15) valueColor = '#E5E4E2'; // Platinum (close)
+            else if (currentValue > data.target) valueColor = '#32CD32'; // Green (exceeding)
+            
+            // Large current value with luxury styling
+            ctx.fillStyle = valueColor;
+            ctx.font = 'bold 56px Orbitron';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = valueColor;
+            ctx.shadowBlur = 25;
+            ctx.fillText(currentValue.toString(), size/2, size/2 - 15);
+            
+            // Unit symbol
+            ctx.fillStyle = '#D4AF37';
+            ctx.font = 'bold 20px Orbitron';
+            ctx.shadowColor = '#D4AF37';
+            ctx.shadowBlur = 10;
+            ctx.fillText(data.unit, size/2, size/2 + 25);
+            
+            // Metric label with luxury styling
+            ctx.fillStyle = '#E5E4E2';
+            ctx.font = 'bold 16px Orbitron';
+            ctx.shadowColor = '#E5E4E2';
+            ctx.shadowBlur = 8;
+            ctx.fillText(config.label, size/2, size/2 + 80);
+            ctx.shadowBlur = 0;
+            
+            // Create texture and material
+            const texture = new THREE.CanvasTexture(canvas);
+            const faceMaterial = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true
+            });
+            
+            const faceGeometry = new THREE.CircleGeometry(config.size, 64);
+            const face = new THREE.Mesh(faceGeometry, faceMaterial);
+            
+            // Store references for updates
+            face.userData = {
+                isGaugeFace: true,
+                metric: config.metric,
+                canvas: canvas,
+                ctx: ctx,
+                texture: texture,
+                config: config,
+                index: index
+            };
+            
+            return face;
+        }
+
+        function createLuxuryGauge(config, index) {
+            const data = performanceData[config.metric];
+            
+            // Create gauge face with embedded metrics
+            const face = createGaugeFaceWithMetrics(config, data, index);
+            face.position.set(...config.pos);
+            face.position.z += 0.02;
+            face.receiveShadow = true;
+            scene.add(face);
+            
+            // Luxury bezel with Ferrari/Cartier styling
+            const luxuryColors = [0xE5E4E2, 0xD4AF37, 0xFF2D00, 0xE5E4E2, 0xD4AF37]; // Platinum, Gold, Ferrari Red
+            const bezelGeometry = new THREE.TorusGeometry(config.size + 0.06, 0.02, 16, 64);
+            const bezelMaterial = new THREE.MeshPhysicalMaterial({
+                color: luxuryColors[index],
+                emissive: luxuryColors[index],
+                emissiveIntensity: 0.2,
+                metalness: 0.9,
+                roughness: 0.1,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.1
+            });
+            const bezel = new THREE.Mesh(bezelGeometry, bezelMaterial);
+            bezel.position.set(config.pos[0], config.pos[1], config.pos[2]);
+            bezel.position.z += 0.01;
+            bezel.castShadow = true;
+            scene.add(bezel);
+            
+            // Luxury Ferrari-style needle
+            const needleLength = config.size * 0.65;
             const needleShape = new THREE.Shape();
             
-            // Create tapered needle shape - base at origin, point extends out
-            needleShape.moveTo(0, -0.04);           // Thick base left (HALF SIZE)
-            needleShape.lineTo(0, 0.04);            // Thick base right (HALF SIZE)
-            needleShape.lineTo(needleLength, 0.005); // Fine point right
-            needleShape.lineTo(needleLength, -0.005); // Fine point left
-            needleShape.lineTo(0, -0.04);           // Back to start
+            // Create elegant needle shape
+            needleShape.moveTo(0, -0.02);           // Thin base left
+            needleShape.lineTo(0, 0.02);            // Thin base right  
+            needleShape.lineTo(needleLength, 0.003); // Ultra-fine point right
+            needleShape.lineTo(needleLength, -0.003); // Ultra-fine point left
+            needleShape.lineTo(0, -0.02);           // Back to start
             
             const needleGeometry = new THREE.ShapeGeometry(needleShape);
-            const needleMaterial = new THREE.MeshLambertMaterial({
-                color: 0xFF0000,  // RED for visibility
-                emissive: 0xFF0000,
-                emissiveIntensity: 1.0
+            const needleMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xFF2D00,  // Ferrari red
+                emissive: 0xFF2D00,
+                emissiveIntensity: 0.8,
+                metalness: 0.9,
+                roughness: 0.1,
+                clearcoat: 1.0
             });
             
             const needle = new THREE.Mesh(needleGeometry, needleMaterial);
             
-            // Position needle at CENTER of gauge (where it pivots from)
+            // Position needle at CENTER of gauge
             needle.position.set(...config.pos);
             needle.position.z += 0.05;
             
-            // Set needle angle based on performance - PROPERLY ANCHORED
-            const percentage = data.current / data.max;
-            const targetAngle = -Math.PI * 0.75 + (Math.PI * 1.5 * percentage);
+            // Calculate angle based on goal-based range
+            const range = data.max - data.min;
+            const normalizedValue = (data.current - data.min) / range;
+            const sweepRange = Math.PI * 1.5; // 270 degrees
+            const targetAngle = -Math.PI * 0.75 + (sweepRange * normalizedValue);
             
-            // Start at random spin for dramatic effect
-            const startAngle = Math.random() * Math.PI * 4;
-            needle.rotation.z = startAngle;
+            // Start at configured lower position for dramatic reveal
+            needle.rotation.z = config.needleStart;
             needle.castShadow = true;
             
             needle.userData = {
@@ -592,27 +815,29 @@
                 targetAngle: targetAngle,
                 baseAngle: targetAngle,
                 interactive: true,
-                startAngle: startAngle,
-                hasAnimated: false
+                startAngle: config.needleStart,
+                hasAnimated: false,
+                range: range,
+                min: data.min
             };
             
             needles.push(needle);
             scene.add(needle);
             
-            // Center pivot point - SMALL
-            const pivotGeometry = new THREE.CircleGeometry(0.03, 16);
-            const pivotMaterial = new THREE.MeshLambertMaterial({
-                color: 0x000000,
-                emissive: 0x333333,
-                emissiveIntensity: 0.8
+            // Luxury center pivot
+            const pivotGeometry = new THREE.CircleGeometry(0.025, 16);
+            const pivotMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xD4AF37,  // Gold
+                emissive: 0xD4AF37,
+                emissiveIntensity: 0.3,
+                metalness: 0.9,
+                roughness: 0.1,
+                clearcoat: 1.0
             });
             const pivot = new THREE.Mesh(pivotGeometry, pivotMaterial);
             pivot.position.set(...config.pos);
-            pivot.position.z += 0.06; // PIVOT ON TOP OF NEEDLE
+            pivot.position.z += 0.06;
             scene.add(pivot);
-            
-            // Digital display
-            createDigitalDisplay(config.label, data.current, config.pos, config.size);
         }
         
         function createTickLabel(text, x, y, z) {
@@ -917,12 +1142,135 @@
             }
         }
         
+        function updateGaugeFaces() {
+            scene.children.forEach(child => {
+                if (child.userData.isGaugeFace && child.userData.metric) {
+                    const data = performanceData[child.userData.metric];
+                    const config = child.userData.config;
+                    if (data) {
+                        const canvas = child.userData.canvas;
+                        const ctx = child.userData.ctx;
+                        const size = 512;
+                        
+                        // Clear canvas
+                        ctx.clearRect(0, 0, size, size);
+                        
+                        // Ferrari/Cartier luxury gradient
+                        const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+                        gradient.addColorStop(0, '#1a1a1a');
+                        gradient.addColorStop(0.4, '#2d2d2d');
+                        gradient.addColorStop(0.8, '#404040');
+                        gradient.addColorStop(1, '#0d0d0d');
+                        ctx.fillStyle = gradient;
+                        ctx.beginPath();
+                        ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Add subtle inner shadow
+                        ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                        ctx.shadowBlur = 20;
+                        ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+                        
+                        // Draw tick marks and numbers
+                        const maxValue = data.max;
+                        for (let i = 0; i <= 10; i++) {
+                            const percentage = i / 10;
+                            const angle = -Math.PI * 0.75 + (Math.PI * 1.5 * percentage);
+                            const isMajor = i % 2 === 0;
+                            
+                            // Tick marks
+                            const tickStart = isMajor ? 0.75 : 0.8;
+                            const tickEnd = 0.9;
+                            const startX = size/2 + Math.cos(angle) * (size/2 * tickStart);
+                            const startY = size/2 + Math.sin(angle) * (size/2 * tickStart);
+                            const endX = size/2 + Math.cos(angle) * (size/2 * tickEnd);
+                            const endY = size/2 + Math.sin(angle) * (size/2 * tickEnd);
+                            
+                            ctx.strokeStyle = '#000000';
+                            ctx.lineWidth = isMajor ? 3 : 1;
+                            ctx.beginPath();
+                            ctx.moveTo(startX, startY);
+                            ctx.lineTo(endX, endY);
+                            ctx.stroke();
+                            
+                            // Numbers for major ticks
+                            if (isMajor) {
+                                const value = Math.round(percentage * maxValue);
+                                const labelRadius = 0.65;
+                                const labelX = size/2 + Math.cos(angle) * (size/2 * labelRadius);
+                                const labelY = size/2 + Math.sin(angle) * (size/2 * labelRadius);
+                                
+                                ctx.fillStyle = '#000000';
+                                ctx.font = 'bold 24px Orbitron';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText(value.toString(), labelX, labelY);
+                            }
+                        }
+                        
+                        // Center area with large value display
+                        const currentValue = Math.round(data.current);
+                        
+                        // Background circle for center display
+                        ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                        ctx.beginPath();
+                        ctx.arc(size/2, size/2, size/2 * 0.35, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Glowing border around center
+                        ctx.strokeStyle = '#D4AF37';
+                        ctx.lineWidth = 3;
+                        ctx.shadowColor = '#D4AF37';
+                        ctx.shadowBlur = 15;
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+                        
+                        // Performance-based value color (Ferrari red accent)
+                        let valueColor = '#FF2D00'; // Ferrari red default
+                        const targetDiff = Math.abs(currentValue - data.target);
+                        if (targetDiff <= 5) valueColor = '#D4AF37';      // Gold (on target)
+                        else if (targetDiff <= 15) valueColor = '#E5E4E2'; // Platinum (close)
+                        else if (currentValue > data.target) valueColor = '#32CD32'; // Green (exceeding)
+                        
+                        ctx.fillStyle = valueColor;
+                        ctx.font = 'bold 64px Orbitron';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.shadowColor = valueColor;
+                        ctx.shadowBlur = 20;
+                        ctx.fillText(currentValue.toString(), size/2, size/2 - 20);
+                        
+                        // Unit symbol
+                        ctx.fillStyle = '#FFD700';
+                        ctx.font = 'bold 24px Orbitron';
+                        ctx.shadowColor = '#FFD700';
+                        ctx.shadowBlur = 10;
+                        ctx.fillText(data.unit, size/2, size/2 + 20);
+                        
+                        // Metric label at bottom
+                        ctx.fillStyle = '#D4AF37';
+                        ctx.font = 'bold 18px Orbitron';
+                        ctx.shadowColor = '#D4AF37';
+                        ctx.shadowBlur = 8;
+                        ctx.fillText(config.label, size/2, size/2 + 60);
+                        ctx.shadowBlur = 0;
+                        
+                        // Update texture
+                        child.userData.texture.needsUpdate = true;
+                    }
+                }
+            });
+        }
+
         function updateHUD() {
             // Simulate real-time data updates
-            if (Math.random() < 0.001) {
+            if (Math.random() < 0.01) { // More frequent updates
                 Object.keys(performanceData).forEach(key => {
                     const data = performanceData[key];
-                    const variation = (Math.random() - 0.5) * 2;
+                    const variation = (Math.random() - 0.5) * 1; // Smaller variations
                     data.current = Math.max(0, Math.min(data.max, data.current + variation));
                 });
                 
@@ -933,6 +1281,9 @@
                 document.getElementById('win-rate').textContent = Math.round(performanceData.winRate.current) + '%';
                 document.getElementById('activity-score').textContent = Math.round(performanceData.activityScore.current);
                 document.getElementById('team-ranking').textContent = '#' + Math.round(performanceData.teamRanking.current);
+                
+                // Update gauge faces
+                updateGaugeFaces();
             }
         }
         
