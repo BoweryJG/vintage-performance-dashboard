@@ -4,7 +4,7 @@
     <title>Elite Performance Cockpit | Sales Command Center</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Eurostile:wght@400;700&family=Agency+FB:wght@400;700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
         
         * {
             margin: 0;
@@ -13,7 +13,7 @@
         }
         
         body {
-            font-family: 'Orbitron', monospace;
+            font-family: 'Rajdhani', 'Eurostile', 'Orbitron', monospace;
             background: radial-gradient(ellipse at center, #0a0a0a 0%, #000000 100%);
             overflow: hidden;
             color: #E5E4E2;
@@ -49,27 +49,58 @@
         }
         
         .hud-title {
-            font-size: 14px;
-            font-weight: 900;
-            color: #E5E4E2;
-            margin-bottom: 10px;
+            font-family: 'Eurostile', 'Rajdhani', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: #F5F5F5;
+            margin-bottom: 12px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(229, 228, 226, 0.5);
+            letter-spacing: 3px;
+            /* Vintage engraved metal effect */
+            text-shadow: 
+                0 1px 0 #000,
+                0 2px 0 #666,
+                0 3px 0 #333,
+                0 0 15px rgba(245, 245, 245, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, #c0c0c0, #808080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .metric {
-            font-size: 11px;
-            margin: 5px 0;
+            font-family: 'Rajdhani', 'Eurostile', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            margin: 6px 0;
             display: flex;
             justify-content: space-between;
-            color: #C0C0C0;
+            color: #D3D3D3;
+            letter-spacing: 1px;
+            /* Subtle engraved effect for labels */
+            text-shadow: 
+                0 1px 0 #000,
+                0 0 8px rgba(211, 211, 211, 0.4);
         }
         
         .metric-value {
-            color: #00FF41;
+            font-family: 'Eurostile', 'Orbitron', monospace;
+            color: #FF6B35; /* Vintage speedometer orange/red */
             font-weight: 700;
-            text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+            font-size: 13px;
+            letter-spacing: 1.5px;
+            /* Performance gauge glow effect */
+            text-shadow: 
+                0 0 8px rgba(255, 107, 53, 0.8),
+                0 0 12px rgba(255, 107, 53, 0.6),
+                0 1px 0 #000,
+                0 2px 0 #330000;
+            /* LED-style background for digital readouts */
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 0, 0, 0.05));
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid rgba(255, 107, 53, 0.3);
         }
         
         /* Performance & Color Controls */
@@ -85,24 +116,147 @@
         
         #color-theme-toggle {
             background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-            border: 2px solid #E5E4E2;
-            border-radius: 8px;
-            padding: 8px 12px;
-            color: #E5E4E2;
-            font-family: 'Orbitron', monospace;
-            font-size: 10px;
+            border: 2px solid #C0C0C0;
+            border-radius: 6px;
+            padding: 10px 15px;
+            color: #F5F5F5;
+            font-family: 'Eurostile', 'Rajdhani', monospace;
+            font-size: 11px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            min-width: 120px;
+            letter-spacing: 2px;
+            min-width: 140px;
             text-align: center;
+            /* Vintage button styling */
+            text-shadow: 
+                0 1px 0 #000,
+                0 0 8px rgba(245, 245, 245, 0.3);
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.5);
         }
         
         #color-theme-toggle:hover {
-            background: linear-gradient(135deg, #FF2D00, #E52B00);
-            color: #FFF;
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(255, 45, 0, 0.7);
+            background: linear-gradient(135deg, #2a2a2a, #3d3d3d);
+            border-color: #FF6B35;
+            color: #FF6B35;
+            text-shadow: 
+                0 1px 0 #000,
+                0 0 12px rgba(255, 107, 53, 0.8);
+            box-shadow: 
+                0 6px 12px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(255, 107, 53, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Mobile Optimizations for Vintage Dashboard */
+        @media (max-width: 768px) {
+            #hud {
+                top: 10px;
+                left: 10px;
+                padding: 12px;
+                max-width: calc(100vw - 20px);
+                font-size: 10px;
+            }
+            
+            .hud-title {
+                font-size: 13px;
+                letter-spacing: 2px;
+                margin-bottom: 8px;
+            }
+            
+            .metric {
+                font-size: 10px;
+                margin: 4px 0;
+            }
+            
+            .metric-value {
+                font-size: 11px;
+                padding: 1px 4px;
+            }
+            
+            #controls-panel {
+                top: 10px;
+                right: 10px;
+                gap: 8px;
+            }
+            
+            #color-theme-toggle {
+                padding: 8px 12px;
+                font-size: 9px;
+                min-width: 100px;
+                letter-spacing: 1px;
+            }
+            
+            /* Mobile gauge interaction hints */
+            body::after {
+                content: "TAP GAUGES FOR DETAILS";
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-family: 'Eurostile', monospace;
+                font-size: 10px;
+                color: rgba(255, 107, 53, 0.6);
+                letter-spacing: 2px;
+                text-shadow: 0 0 8px rgba(255, 107, 53, 0.4);
+                pointer-events: none;
+                z-index: 1000;
+                animation: mobilePulse 3s ease-in-out infinite;
+            }
+            
+            @keyframes mobilePulse {
+                0%, 100% { opacity: 0.6; }
+                50% { opacity: 1; }
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #hud {
+                padding: 8px;
+                border-radius: 8px;
+            }
+            
+            .hud-title {
+                font-size: 11px;
+                letter-spacing: 1px;
+            }
+            
+            .metric {
+                font-size: 9px;
+            }
+            
+            .metric-value {
+                font-size: 10px;
+            }
+            
+            #color-theme-toggle {
+                padding: 6px 10px;
+                font-size: 8px;
+                min-width: 80px;
+            }
+        }
+        
+        /* Touch-friendly gauge interaction zones */
+        .gauge-touch-zone {
+            position: absolute;
+            background: rgba(255, 107, 53, 0.1);
+            border: 2px solid rgba(255, 107, 53, 0.3);
+            border-radius: 50%;
+            pointer-events: auto;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .gauge-touch-zone:hover,
+        .gauge-touch-zone:active {
+            background: rgba(255, 107, 53, 0.2);
+            border-color: rgba(255, 107, 53, 0.6);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
         }
         
         #performance-toggle {

@@ -135,57 +135,106 @@ class LuxuryDashboard {
     }
     
     createDashboard() {
-        // LUXURY: Vintage curved automobile dashboard (research-based)
+        // VINTAGE: Carbon fiber and wood grain dashboard panel
         const dashboardGeometry = new THREE.CylinderGeometry(
-            8, 8, 0.8, 32, 1, false, 
+            8, 8, 0.8, 64, 1, false, 
             0, Math.PI  // Half cylinder for dashboard curve
         );
         
         const dashboardMaterial = new THREE.MeshPhysicalMaterial({
-            color: this.colors.charcoal,
-            metalness: 0.7,
-            roughness: 0.3,
-            clearcoat: 0.1,
-            clearcoatRoughness: 0.1
+            color: 0x1a1a1a, // Deep black for carbon fiber look
+            metalness: 0.8,
+            roughness: 0.4,
+            clearcoat: 0.9,
+            clearcoatRoughness: 0.1,
+            normalScale: new THREE.Vector2(0.5, 0.5) // Carbon fiber texture
         });
         
         const dashboard = new THREE.Mesh(dashboardGeometry, dashboardMaterial);
-        dashboard.rotation.x = Math.PI / 6; // Vintage automotive angle
-        dashboard.rotation.y = Math.PI;     // CRITICAL: Face the curve toward user
+        dashboard.rotation.x = Math.PI / 6;
+        dashboard.rotation.y = Math.PI;
         dashboard.position.y = -0.5;
         dashboard.castShadow = true;
         dashboard.receiveShadow = true;
         
         this.dashboardGroup.add(dashboard);
         
-        // Cognac leather trim
-        const leatherGeometry = new THREE.CylinderGeometry(
-            7.5, 7.5, 0.15, 32, 1, false,
+        // Polished walnut wood trim (classic luxury automotive)
+        const woodTrimGeometry = new THREE.CylinderGeometry(
+            7.5, 7.5, 0.18, 64, 1, false,
             0, Math.PI
         );
         
-        const leatherMaterial = new THREE.MeshPhysicalMaterial({
-            color: this.colors.cognacLeather,
-            roughness: 0.8,
-            metalness: 0.1
+        const woodTrimMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x5D4E37, // Walnut brown
+            roughness: 0.3,
+            metalness: 0.0,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.1,
+            normalScale: new THREE.Vector2(0.8, 0.8) // Wood grain texture
         });
         
-        const leather = new THREE.Mesh(leatherGeometry, leatherMaterial);
-        leather.rotation.x = Math.PI / 6;
-        leather.rotation.y = Math.PI;     // CRITICAL: Match dashboard rotation
-        leather.position.y = -0.35;
+        const woodTrim = new THREE.Mesh(woodTrimGeometry, woodTrimMaterial);
+        woodTrim.rotation.x = Math.PI / 6;
+        woodTrim.rotation.y = Math.PI;
+        woodTrim.position.y = -0.35;
         
-        this.dashboardGroup.add(leather);
+        this.dashboardGroup.add(woodTrim);
+        
+        // Add brushed aluminum accent strips
+        this.createAccentStrips();
+        
+        // Add vintage dashboard lighting
+        this.createDashboardLighting();
         
         this.scene.add(this.dashboardGroup);
+    }
+    
+    createAccentStrips() {
+        const stripCount = 3;
+        for (let i = 0; i < stripCount; i++) {
+            const stripGeometry = new THREE.CylinderGeometry(
+                7.3 - i * 0.3, 7.3 - i * 0.3, 0.02, 32, 1, false,
+                0, Math.PI
+            );
+            
+            const stripMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xc0c0c0, // Brushed aluminum
+                metalness: 1.0,
+                roughness: 0.2,
+                clearcoat: 0.8,
+                clearcoatRoughness: 0.1
+            });
+            
+            const strip = new THREE.Mesh(stripGeometry, stripMaterial);
+            strip.rotation.x = Math.PI / 6;
+            strip.rotation.y = Math.PI;
+            strip.position.y = -0.25 - i * 0.1;
+            
+            this.dashboardGroup.add(strip);
+        }
+    }
+    
+    createDashboardLighting() {
+        // Warm ambient dashboard lighting (like vintage car at night)
+        const dashboardLight = new THREE.SpotLight(0xffb366, 0.8, 15, Math.PI / 6, 0.5);
+        dashboardLight.position.set(0, 5, 8);
+        dashboardLight.target.position.set(0, 0, 2);
+        dashboardLight.castShadow = true;
+        dashboardLight.shadow.mapSize.width = 1024;
+        dashboardLight.shadow.mapSize.height = 1024;
         
-        // DEBUG: Add a visible test cube to verify rendering
-        const testGeometry = new THREE.BoxGeometry(1, 1, 1);
-        const testMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
-        const testCube = new THREE.Mesh(testGeometry, testMaterial);
-        testCube.position.set(5, 2, 5);
-        this.scene.add(testCube);
-        console.log('DEBUG: Red test cube added at (5,2,5) - should be visible');
+        this.scene.add(dashboardLight);
+        this.scene.add(dashboardLight.target);
+        
+        // Blue accent lighting for performance feel
+        const accentLight = new THREE.PointLight(0x4488ff, 0.3, 12);
+        accentLight.position.set(-3, 2, 6);
+        this.scene.add(accentLight);
+        
+        const accentLight2 = new THREE.PointLight(0x4488ff, 0.3, 12);
+        accentLight2.position.set(3, 2, 6);
+        this.scene.add(accentLight2);
     }
     
     createGauges() {
@@ -242,15 +291,17 @@ class LuxuryDashboard {
     createGauge(config) {
         const group = new THREE.Group();
         
-        // LUXURY: Crystal-clear gauge face (research-verified)
-        const faceGeometry = new THREE.CylinderGeometry(config.size, config.size, 0.1, 32);
+        // VINTAGE: Brushed aluminum gauge face with radial texture
+        const faceGeometry = new THREE.CylinderGeometry(config.size, config.size, 0.12, 64);
         const faceMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x000000,
-            metalness: 0.9,
-            roughness: 0.1,
-            clearcoat: 1.0,
-            clearcoatRoughness: 0.1,
-            reflectivity: 0.9
+            color: 0x2a2a2a,
+            metalness: 0.95,
+            roughness: 0.25,
+            clearcoat: 0.8,
+            clearcoatRoughness: 0.15,
+            reflectivity: 0.8,
+            // Add subtle noise for brushed metal texture
+            normalScale: new THREE.Vector2(0.3, 0.3)
         });
         
         const face = new THREE.Mesh(faceGeometry, faceMaterial);
@@ -260,99 +311,261 @@ class LuxuryDashboard {
         face.receiveShadow = true;
         group.add(face);
         
-        // LUXURY: Brushed aluminum rim
-        const rimGeometry = new THREE.TorusGeometry(config.size + 0.1, 0.15, 8, 32);
-        const rimMaterial = new THREE.MeshPhysicalMaterial({
-            color: this.colors.silver,
+        // VINTAGE: Chamfered chrome bezel with screw heads
+        const bezelGeometry = new THREE.TorusGeometry(config.size + 0.12, 0.18, 12, 48);
+        const bezelMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xc0c0c0,
             metalness: 1.0,
-            roughness: 0.3,
-            clearcoat: 0.5
+            roughness: 0.15,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.05,
+            reflectivity: 1.0
         });
         
-        const rim = new THREE.Mesh(rimGeometry, rimMaterial);
-        rim.position.set(config.position.x, config.position.y + 0.15, config.position.z);
-        rim.rotation.x = -Math.PI / 2;
-        rim.castShadow = true;
-        group.add(rim);
+        const bezel = new THREE.Mesh(bezelGeometry, bezelMaterial);
+        bezel.position.set(config.position.x, config.position.y + 0.15, config.position.z);
+        bezel.rotation.x = -Math.PI / 2;
+        bezel.castShadow = true;
+        group.add(bezel);
         
-        // LUXURY: Precision needle (cone geometry for watch-like appearance)
-        const needleGeometry = new THREE.ConeGeometry(0.03, config.size * 0.8, 8);
-        const needleMaterial = new THREE.MeshPhysicalMaterial({
-            color: config.color,
-            metalness: 0.8,
+        // Add chrome screw heads around bezel
+        this.createScrewHeads(group, config);
+        
+        // VINTAGE: Chrome-tipped needle with vintage tachometer style
+        const needleGroup = new THREE.Group();
+        
+        // Main needle shaft
+        const needleShaftGeometry = new THREE.CylinderGeometry(0.02, 0.04, config.size * 0.7, 8);
+        const needleShaftMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x8B0000, // Deep red
+            metalness: 0.3,
+            roughness: 0.4,
+            clearcoat: 0.9,
+            clearcoatRoughness: 0.1
+        });
+        
+        const needleShaft = new THREE.Mesh(needleShaftGeometry, needleShaftMaterial);
+        needleShaft.position.y = config.size * 0.35;
+        needleShaft.rotation.z = Math.PI / 2;
+        needleGroup.add(needleShaft);
+        
+        // Chrome needle tip
+        const needleTipGeometry = new THREE.ConeGeometry(0.08, 0.25, 8);
+        const needleTipMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            metalness: 1.0,
+            roughness: 0.05,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.02,
+            reflectivity: 1.0
+        });
+        
+        const needleTip = new THREE.Mesh(needleTipGeometry, needleTipMaterial);
+        needleTip.position.y = config.size * 0.65;
+        needleTip.rotation.z = Math.PI / 2;
+        needleGroup.add(needleTip);
+        
+        // Position and rotate the entire needle
+        needleGroup.position.set(config.position.x, config.position.y + 0.18, config.position.z);
+        needleGroup.rotation.z = this.valueToAngle(config.value, config.max);
+        needleGroup.rotation.x = -Math.PI / 2;
+        needleGroup.castShadow = true;
+        group.add(needleGroup);
+        
+        // VINTAGE: Steel center bolt with hex head
+        const centerBoltGeometry = new THREE.CylinderGeometry(0.18, 0.18, 0.12, 6);
+        const centerBoltMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x404040,
+            metalness: 1.0,
             roughness: 0.2,
-            emissive: config.color,
-            emissiveIntensity: 0.3,
-            clearcoat: 0.8
+            clearcoat: 0.8,
+            clearcoatRoughness: 0.1
         });
         
-        const needle = new THREE.Mesh(needleGeometry, needleMaterial);
-        needle.position.set(config.position.x, config.position.y + 0.2, config.position.z);
-        needle.rotation.z = this.valueToAngle(config.value, config.max);
-        needle.rotation.x = -Math.PI / 2; // Point needle correctly
-        needle.castShadow = true;
-        group.add(needle);
+        const centerBolt = new THREE.Mesh(centerBoltGeometry, centerBoltMaterial);
+        centerBolt.position.set(config.position.x, config.position.y + 0.21, config.position.z);
+        centerBolt.rotation.x = -Math.PI / 2;
+        centerBolt.castShadow = true;
+        group.add(centerBolt);
         
-        // LUXURY: Rose gold center hub
-        const hubGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.08, 16);
-        const hubMaterial = new THREE.MeshPhysicalMaterial({
-            color: this.colors.roseGold,
-            metalness: 1.0,
-            roughness: 0.1,
-            clearcoat: 0.9
-        });
+        // Add glass reflection overlay
+        this.createGlassOverlay(group, config);
         
-        const hub = new THREE.Mesh(hubGeometry, hubMaterial);
-        hub.position.set(config.position.x, config.position.y + 0.2, config.position.z);
-        hub.rotation.x = -Math.PI / 2;
-        hub.castShadow = true;
-        group.add(hub);
+        // Enhanced scale markings with vintage style
+        this.createVintageScaleMarkings(group, config);
         
-        // Luxury scale markings
-        this.createScaleMarkings(group, config);
+        // Add danger zones (red zones)
+        this.createDangerZones(group, config);
         
         return {
             group: group,
-            needle: needle,
+            needle: needleGroup,
             config: config,
             currentValue: config.value,
             targetValue: config.value
         };
     }
     
-    createScaleMarkings(group, config) {
-        const markings = 12;
+    createScrewHeads(group, config) {
+        const screwCount = 8;
+        for (let i = 0; i < screwCount; i++) {
+            const angle = (Math.PI * 2 * i) / screwCount;
+            const radius = config.size + 0.25;
+            const x = Math.cos(angle) * radius;
+            const z = Math.sin(angle) * radius;
+            
+            const screwGeometry = new THREE.CylinderGeometry(0.06, 0.06, 0.08, 6);
+            const screwMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x808080,
+                metalness: 1.0,
+                roughness: 0.3,
+                clearcoat: 0.8
+            });
+            
+            const screw = new THREE.Mesh(screwGeometry, screwMaterial);
+            screw.position.set(
+                config.position.x + x,
+                config.position.y + 0.19,
+                config.position.z + z
+            );
+            screw.rotation.x = -Math.PI / 2;
+            screw.castShadow = true;
+            group.add(screw);
+        }
+    }
+    
+    createGlassOverlay(group, config) {
+        const glassGeometry = new THREE.CylinderGeometry(config.size + 0.05, config.size + 0.05, 0.02, 64);
+        const glassMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            metalness: 0.0,
+            roughness: 0.0,
+            transmission: 0.95,
+            transparent: true,
+            opacity: 0.1,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.0,
+            ior: 1.5
+        });
+        
+        const glass = new THREE.Mesh(glassGeometry, glassMaterial);
+        glass.position.set(config.position.x, config.position.y + 0.22, config.position.z);
+        glass.rotation.x = -Math.PI / 2;
+        group.add(glass);
+    }
+    
+    createVintageScaleMarkings(group, config) {
+        const markings = 20;
         for (let i = 0; i <= markings; i++) {
             const angle = -Math.PI * 0.75 + (Math.PI * 1.5 * i / markings);
-            const x = Math.cos(angle) * (config.size * 0.85);
-            const z = Math.sin(angle) * (config.size * 0.85);
+            const x = Math.cos(angle) * (config.size * 0.8);
+            const z = Math.sin(angle) * (config.size * 0.8);
             
-            // Major and minor markings like luxury watch
-            const isMajor = i % 3 === 0;
-            const markGeometry = new THREE.BoxGeometry(
-                isMajor ? 0.08 : 0.04, 
-                0.03, 
-                isMajor ? 0.2 : 0.1
-            );
+            // Major, medium, and minor markings
+            const isMajor = i % 5 === 0;
+            const isMedium = i % 2 === 0 && !isMajor;
+            
+            let markHeight, markWidth, markDepth;
+            if (isMajor) {
+                markHeight = 0.25;
+                markWidth = 0.06;
+                markDepth = 0.03;
+            } else if (isMedium) {
+                markHeight = 0.15;
+                markWidth = 0.04;
+                markDepth = 0.02;
+            } else {
+                markHeight = 0.08;
+                markWidth = 0.02;
+                markDepth = 0.01;
+            }
+            
+            const markGeometry = new THREE.BoxGeometry(markWidth, markDepth, markHeight);
             const markMaterial = new THREE.MeshPhysicalMaterial({ 
-                color: this.colors.cream,
-                emissive: this.colors.cream,
-                emissiveIntensity: 0.4,
-                metalness: 0.3,
-                roughness: 0.2
+                color: isMajor ? 0xffffff : 0xe0e0e0,
+                emissive: isMajor ? 0x444444 : 0x222222,
+                emissiveIntensity: 0.3,
+                metalness: 0.8,
+                roughness: 0.2,
+                clearcoat: 0.9
             });
             
             const mark = new THREE.Mesh(markGeometry, markMaterial);
             mark.position.set(
                 config.position.x + x, 
-                config.position.y + 0.16, 
+                config.position.y + 0.17, 
                 config.position.z + z
             );
             mark.rotation.x = -Math.PI / 2;
+            mark.rotation.y = angle + Math.PI / 2;
             mark.castShadow = true;
             
             group.add(mark);
         }
+    }
+    
+    createDangerZones(group, config) {
+        // Red zone arc for danger/high values
+        const dangerStartAngle = Math.PI * 0.3; // About 80% of max
+        const dangerEndAngle = Math.PI * 0.75;
+        
+        const dangerArcGeometry = new THREE.RingGeometry(
+            config.size * 0.65, 
+            config.size * 0.75, 
+            0, 
+            32, 
+            dangerStartAngle, 
+            dangerEndAngle - dangerStartAngle
+        );
+        
+        const dangerArcMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xff0000,
+            transparent: true,
+            opacity: 0.6,
+            emissive: 0x440000,
+            emissiveIntensity: 0.2,
+            side: THREE.DoubleSide
+        });
+        
+        const dangerArc = new THREE.Mesh(dangerArcGeometry, dangerArcMaterial);
+        dangerArc.position.set(config.position.x, config.position.y + 0.16, config.position.z);
+        dangerArc.rotation.x = -Math.PI / 2;
+        dangerArc.rotation.z = -Math.PI * 0.75;
+        group.add(dangerArc);
+        
+        // Yellow warning zone
+        const warningStartAngle = Math.PI * 0.1;
+        const warningEndAngle = Math.PI * 0.3;
+        
+        const warningArcGeometry = new THREE.RingGeometry(
+            config.size * 0.65, 
+            config.size * 0.75, 
+            0, 
+            32, 
+            warningStartAngle, 
+            warningEndAngle - warningStartAngle
+        );
+        
+        const warningArcMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffaa00,
+            transparent: true,
+            opacity: 0.4,
+            emissive: 0x442200,
+            emissiveIntensity: 0.1,
+            side: THREE.DoubleSide
+        });
+        
+        const warningArc = new THREE.Mesh(warningArcGeometry, warningArcMaterial);
+        warningArc.position.set(config.position.x, config.position.y + 0.16, config.position.z);
+        warningArc.rotation.x = -Math.PI / 2;
+        warningArc.rotation.z = -Math.PI * 0.75;
+        group.add(warningArc);
+    }
+    
+    createScaleMarkings(group, config) {
+        // This method is now replaced by createVintageScaleMarkings
+        // Keeping for backward compatibility
+        this.createVintageScaleMarkings(group, config);
     }
     
     valueToAngle(value, max) {
@@ -415,11 +628,18 @@ class LuxuryDashboard {
     
     setupBasicEventListeners() {
         const canvas = document.getElementById('canvas');
-        canvas.addEventListener('click', (event) => {
-            // Basic click interaction
+        
+        // Unified interaction handler for mouse and touch
+        const handleInteraction = (event) => {
+            event.preventDefault();
+            
+            // Get coordinates (works for both mouse and touch)
+            const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+            const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+            
             const mouse = new THREE.Vector2();
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            mouse.x = (clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(clientY / window.innerHeight) * 2 + 1;
             
             const raycaster = new THREE.Raycaster();
             raycaster.setFromCamera(mouse, this.camera);
@@ -431,10 +651,100 @@ class LuxuryDashboard {
             if (intersects.length > 0) {
                 const gauge = this.gauges.find(g => g.group.children.includes(intersects[0].object));
                 if (gauge) {
+                    // Mobile: Zoom effect on tap
+                    if (event.touches) {
+                        this.mobileGaugeZoom(gauge);
+                    }
+                    // Animate gauge with vintage spring physics
                     this.animateGaugeValue(gauge, gauge.config.value + Math.random() * 20 - 10);
                 }
             }
+        };
+        
+        // Mouse events
+        canvas.addEventListener('click', handleInteraction);
+        
+        // Touch events for mobile
+        canvas.addEventListener('touchstart', handleInteraction, { passive: false });
+        canvas.addEventListener('touchend', (event) => {
+            event.preventDefault();
+        }, { passive: false });
+        
+        // Add window resize handler
+        window.addEventListener('resize', () => this.onWindowResize());
+    }
+    
+    mobileGaugeZoom(gauge) {
+        // Create mobile zoom overlay for detailed gauge view
+        const overlay = document.createElement('div');
+        overlay.id = 'mobile-gauge-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Eurostile', 'Rajdhani', monospace;
+            color: #F5F5F5;
+            text-align: center;
+            cursor: pointer;
+        `;
+        
+        const title = document.createElement('h2');
+        title.textContent = gauge.config.name.toUpperCase();
+        title.style.cssText = `
+            font-size: 24px;
+            font-weight: 700;
+            color: #FF6B35;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(255, 107, 53, 0.8);
+        `;
+        
+        const value = document.createElement('div');
+        value.textContent = `${Math.round(gauge.config.value)} / ${gauge.config.max}`;
+        value.style.cssText = `
+            font-size: 48px;
+            font-weight: 900;
+            color: #F5F5F5;
+            margin-bottom: 30px;
+            text-shadow: 
+                0 0 20px rgba(245, 245, 245, 0.6),
+                0 2px 0 #000;
+        `;
+        
+        const hint = document.createElement('p');
+        hint.textContent = 'TAP TO CLOSE';
+        hint.style.cssText = `
+            font-size: 12px;
+            color: rgba(255, 107, 53, 0.6);
+            letter-spacing: 2px;
+            animation: mobilePulse 2s ease-in-out infinite;
+        `;
+        
+        overlay.appendChild(title);
+        overlay.appendChild(value);
+        overlay.appendChild(hint);
+        
+        // Close on tap
+        overlay.addEventListener('click', () => {
+            document.body.removeChild(overlay);
         });
+        
+        document.body.appendChild(overlay);
+        
+        // Auto-close after 5 seconds
+        setTimeout(() => {
+            if (document.getElementById('mobile-gauge-overlay')) {
+                document.body.removeChild(overlay);
+            }
+        }, 5000);
     }
     
     setupEventListeners() {
@@ -450,27 +760,72 @@ class LuxuryDashboard {
     
     animateGaugeValue(gauge, newValue) {
         const targetAngle = this.valueToAngle(newValue, gauge.config.max);
-        
-        // Smooth animation using TWEEN or custom animation
         const startAngle = gauge.needle.rotation.z;
-        const duration = 1000; // 1 second
+        const angleDistance = targetAngle - startAngle;
+        
+        // Performance-style animation with spring physics
+        const duration = 1200; // Slightly longer for realism
         const startTime = Date.now();
+        
+        // Spring physics parameters
+        const springK = 0.3; // Spring stiffness
+        const damping = 0.85; // Damping factor
         
         const animate = () => {
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / duration, 1);
             
-            // Easing function for smooth needle movement
-            const easeProgress = 1 - Math.pow(1 - progress, 3);
+            // Spring easing with overshoot and settle
+            let easeProgress;
+            if (progress < 0.7) {
+                // Initial smooth acceleration
+                easeProgress = 1 - Math.pow(1 - (progress / 0.7), 2);
+            } else {
+                // Spring bounce with damping
+                const bounceProgress = (progress - 0.7) / 0.3;
+                const springForce = Math.sin(bounceProgress * Math.PI * 4) * Math.pow(damping, bounceProgress * 8);
+                easeProgress = 1 + springForce * 0.1;
+            }
             
-            gauge.needle.rotation.z = startAngle + (targetAngle - startAngle) * easeProgress;
+            const currentAngle = startAngle + angleDistance * easeProgress;
+            gauge.needle.rotation.z = currentAngle;
             
+            // Add subtle needle vibration at high values (performance stress simulation)
+            if (newValue / gauge.config.max > 0.8) {
+                const vibrationIntensity = (newValue / gauge.config.max - 0.8) * 0.5;
+                const vibration = Math.sin(elapsed * 0.05) * vibrationIntensity * 0.01;
+                gauge.needle.rotation.z += vibration;
+            }
+            
+            // Continue animation if not complete
             if (progress < 1) {
                 requestAnimationFrame(animate);
+            } else {
+                // Final settling animation
+                gauge.targetValue = newValue;
+                this.addNeedleVibration(gauge);
             }
         };
         
         animate();
+    }
+    
+    addNeedleVibration(gauge) {
+        // Continuous subtle vibration for high-performance feel
+        const vibrationLoop = () => {
+            if (gauge.targetValue / gauge.config.max > 0.7) {
+                const intensity = (gauge.targetValue / gauge.config.max - 0.7) * 0.3;
+                const vibration = (Math.random() - 0.5) * intensity * 0.008;
+                const baseAngle = this.valueToAngle(gauge.targetValue, gauge.config.max);
+                gauge.needle.rotation.z = baseAngle + vibration;
+            }
+            
+            // Continue vibration loop
+            setTimeout(vibrationLoop, 50 + Math.random() * 50);
+        };
+        
+        // Start vibration with random delay to avoid synchronization
+        setTimeout(vibrationLoop, Math.random() * 200);
     }
     
     updateSalesData() {
