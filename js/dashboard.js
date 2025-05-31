@@ -72,8 +72,8 @@ class LuxuryDashboard {
             0.1, 
             1000
         );
-        this.camera.position.set(0, 2, 8);
-        this.camera.lookAt(0, 0, 0);
+        this.camera.position.set(0, 4, 6);
+        this.camera.lookAt(0, 0.5, 0);
     }
     
     setupRenderer() {
@@ -142,7 +142,7 @@ class LuxuryDashboard {
         const gaugeConfigs = [
             { 
                 name: 'Performance', 
-                position: { x: 0, y: 0, z: 0 }, 
+                position: { x: 0, y: 0.3, z: 0 }, 
                 value: this.salesData.quarterProgress, 
                 max: 100,
                 size: 1.5,
@@ -150,7 +150,7 @@ class LuxuryDashboard {
             },
             { 
                 name: 'Revenue', 
-                position: { x: -3, y: 0, z: 1 }, 
+                position: { x: -3, y: 0.3, z: 1 }, 
                 value: (this.salesData.revenue / this.salesData.quota) * 100, 
                 max: 150,
                 size: 1.0,
@@ -158,7 +158,7 @@ class LuxuryDashboard {
             },
             { 
                 name: 'Pipeline', 
-                position: { x: 3, y: 0, z: 1 }, 
+                position: { x: 3, y: 0.3, z: 1 }, 
                 value: 75, 
                 max: 100,
                 size: 1.0,
@@ -166,7 +166,7 @@ class LuxuryDashboard {
             },
             { 
                 name: 'Velocity', 
-                position: { x: -2, y: 0, z: 2.5 }, 
+                position: { x: -2, y: 0.3, z: 2.5 }, 
                 value: 30, 
                 max: 50,
                 size: 0.8,
@@ -174,7 +174,7 @@ class LuxuryDashboard {
             },
             { 
                 name: 'Ranking', 
-                position: { x: 2, y: 0, z: 2.5 }, 
+                position: { x: 2, y: 0.3, z: 2.5 }, 
                 value: 97, 
                 max: 100,
                 size: 0.8,
@@ -223,8 +223,9 @@ class LuxuryDashboard {
         });
         
         const needle = new THREE.Mesh(needleGeometry, needleMaterial);
-        needle.position.set(config.position.x, config.position.y + 0.2, config.position.z);
+        needle.position.set(config.position.x, config.position.y + 0.25, config.position.z);
         needle.rotation.z = this.valueToAngle(config.value, config.max);
+        needle.rotation.x = -Math.PI / 2; // Point needle upward
         group.add(needle);
         
         // Center hub
@@ -253,16 +254,20 @@ class LuxuryDashboard {
         const markings = 10;
         for (let i = 0; i <= markings; i++) {
             const angle = -Math.PI * 0.75 + (Math.PI * 1.5 * i / markings);
-            const x = Math.cos(angle) * (config.size * 0.9);
-            const z = Math.sin(angle) * (config.size * 0.9);
+            const x = Math.cos(angle) * (config.size * 0.85);
+            const z = Math.sin(angle) * (config.size * 0.85);
             
-            const markGeometry = new THREE.BoxGeometry(0.02, 0.02, 0.1);
-            const markMaterial = new THREE.MeshBasicMaterial({ color: this.colors.cream });
+            const markGeometry = new THREE.BoxGeometry(0.05, 0.05, 0.02);
+            const markMaterial = new THREE.MeshLambertMaterial({ 
+                color: this.colors.cream,
+                emissive: this.colors.cream,
+                emissiveIntensity: 0.3
+            });
             
             const mark = new THREE.Mesh(markGeometry, markMaterial);
             mark.position.set(
                 config.position.x + x, 
-                config.position.y + 0.15, 
+                config.position.y + 0.2, 
                 config.position.z + z
             );
             
