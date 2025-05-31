@@ -110,27 +110,25 @@ class LuxuryDashboard {
     }
     
     createDashboard() {
-        // Main dashboard base
-        const dashboardGeometry = new THREE.CylinderGeometry(6, 6, 0.5, 32, 1, false, 0, Math.PI);
+        // Main dashboard base - use BoxGeometry for full rectangular dashboard
+        const dashboardGeometry = new THREE.BoxGeometry(12, 0.5, 8);
         const dashboardMaterial = new THREE.MeshLambertMaterial({
             color: this.colors.charcoal
         });
         
         const dashboard = new THREE.Mesh(dashboardGeometry, dashboardMaterial);
-        dashboard.rotation.z = Math.PI;
         dashboard.position.y = -0.25;
         dashboard.receiveShadow = true;
         
         this.dashboardGroup.add(dashboard);
         
         // Leather padding
-        const leatherGeometry = new THREE.CylinderGeometry(5.8, 5.8, 0.1, 32, 1, false, 0, Math.PI);
+        const leatherGeometry = new THREE.BoxGeometry(11.5, 0.1, 7.5);
         const leatherMaterial = new THREE.MeshLambertMaterial({
             color: this.colors.cognacLeather
         });
         
         const leather = new THREE.Mesh(leatherGeometry, leatherMaterial);
-        leather.rotation.z = Math.PI;
         leather.position.y = 0.05;
         
         this.dashboardGroup.add(leather);
@@ -145,12 +143,12 @@ class LuxuryDashboard {
                 position: { x: 0, y: 0.3, z: 0 }, 
                 value: this.salesData.quarterProgress, 
                 max: 100,
-                size: 1.5,
+                size: 1.2,
                 color: this.colors.racingGreen 
             },
             { 
                 name: 'Revenue', 
-                position: { x: -3, y: 0.3, z: 1 }, 
+                position: { x: -3.5, y: 0.3, z: 0 }, 
                 value: (this.salesData.revenue / this.salesData.quota) * 100, 
                 max: 150,
                 size: 1.0,
@@ -158,7 +156,7 @@ class LuxuryDashboard {
             },
             { 
                 name: 'Pipeline', 
-                position: { x: 3, y: 0.3, z: 1 }, 
+                position: { x: 3.5, y: 0.3, z: 0 }, 
                 value: 75, 
                 max: 100,
                 size: 1.0,
@@ -166,7 +164,7 @@ class LuxuryDashboard {
             },
             { 
                 name: 'Velocity', 
-                position: { x: -2, y: 0.3, z: 2.5 }, 
+                position: { x: -1.8, y: 0.3, z: -1.5 }, 
                 value: 30, 
                 max: 50,
                 size: 0.8,
@@ -174,7 +172,7 @@ class LuxuryDashboard {
             },
             { 
                 name: 'Ranking', 
-                position: { x: 2, y: 0.3, z: 2.5 }, 
+                position: { x: 1.8, y: 0.3, z: -1.5 }, 
                 value: 97, 
                 max: 100,
                 size: 0.8,
@@ -213,8 +211,8 @@ class LuxuryDashboard {
         rim.rotation.x = -Math.PI / 2;
         group.add(rim);
         
-        // Needle
-        const needleGeometry = new THREE.ConeGeometry(0.02, config.size * 0.8, 8);
+        // Needle - use BoxGeometry for a flat needle
+        const needleGeometry = new THREE.BoxGeometry(config.size * 0.7, 0.02, 0.05);
         const needleMaterial = new THREE.MeshPhongMaterial({
             color: config.color,
             shininess: 100,
@@ -223,9 +221,8 @@ class LuxuryDashboard {
         });
         
         const needle = new THREE.Mesh(needleGeometry, needleMaterial);
-        needle.position.set(config.position.x, config.position.y + 0.25, config.position.z);
-        needle.rotation.z = this.valueToAngle(config.value, config.max);
-        needle.rotation.x = -Math.PI / 2; // Point needle upward
+        needle.position.set(config.position.x, config.position.y + 0.15, config.position.z);
+        needle.rotation.y = this.valueToAngle(config.value, config.max);
         group.add(needle);
         
         // Center hub
@@ -251,13 +248,13 @@ class LuxuryDashboard {
     }
     
     createScaleMarkings(group, config) {
-        const markings = 10;
+        const markings = 8;
         for (let i = 0; i <= markings; i++) {
-            const angle = -Math.PI * 0.75 + (Math.PI * 1.5 * i / markings);
-            const x = Math.cos(angle) * (config.size * 0.85);
-            const z = Math.sin(angle) * (config.size * 0.85);
+            const angle = -Math.PI + (Math.PI * 2 * i / markings);
+            const x = Math.cos(angle) * (config.size * 0.9);
+            const z = Math.sin(angle) * (config.size * 0.9);
             
-            const markGeometry = new THREE.BoxGeometry(0.05, 0.05, 0.02);
+            const markGeometry = new THREE.BoxGeometry(0.1, 0.05, 0.1);
             const markMaterial = new THREE.MeshLambertMaterial({ 
                 color: this.colors.cream,
                 emissive: this.colors.cream,
@@ -267,7 +264,7 @@ class LuxuryDashboard {
             const mark = new THREE.Mesh(markGeometry, markMaterial);
             mark.position.set(
                 config.position.x + x, 
-                config.position.y + 0.2, 
+                config.position.y + 0.12, 
                 config.position.z + z
             );
             
@@ -277,7 +274,8 @@ class LuxuryDashboard {
     
     valueToAngle(value, max) {
         const normalizedValue = Math.min(value / max, 1);
-        return -Math.PI * 0.75 + (Math.PI * 1.5 * normalizedValue);
+        // Return angle from 0 to 2π for full circle sweep
+        return normalizedValue * Math.PI * 2;
     }
     
     setupEnvironmentManager() {
