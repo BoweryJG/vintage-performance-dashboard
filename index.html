@@ -1325,12 +1325,18 @@
                 }
             });
             
-            // Handle needle hover - spin on mouseover
+            // Handle needle hover - spin on mouseover (one-time event)
             if (needleIntersects.length > 0) {
                 const needle = needleIntersects[0].object;
-                if (needle.userData.isNeedle && !needle.userData.isSpinning) {
+                if (needle.userData.isNeedle && !needle.userData.isSpinning && !needle.userData.hasSpunRecently) {
                     needle.userData.isHovered = true;
+                    needle.userData.hasSpunRecently = true;
                     startNeedleSpinning(needle);
+                    
+                    // Reset the "recently spun" flag after a cooldown
+                    setTimeout(() => {
+                        needle.userData.hasSpunRecently = false;
+                    }, 3000); // 3-second cooldown before needle can spin again
                 }
                 document.body.style.cursor = 'crosshair';
             }
@@ -1490,7 +1496,10 @@
             
             needle.userData.isSpinning = true;
             needle.userData.originalAngle = needle.rotation.z;
-            needle.userData.spinStartTime = Date.now();
+            
+            // Random number of full rotations (1-2 times)
+            const rotations = Math.random() > 0.5 ? 2 : 1;
+            const finalAngle = needle.userData.originalAngle + (Math.PI * 2 * rotations);
             
             // Enhanced visual feedback for spinning needle
             gsap.to(needle.material, {
@@ -1504,20 +1513,31 @@
                 ease: "back.out(1.7)"
             });
             
-            console.log(`🌀 Started spinning needle for ${needle.userData.metric}`);
+            // Animate the needle through full rotation(s)
+            gsap.to(needle.rotation, {
+                z: finalAngle,
+                duration: 1.5 + (rotations * 0.3), // Longer duration for more rotations
+                ease: "power2.out",
+                onComplete: () => {
+                    // Return to target position after spinning
+                    gsap.to(needle.rotation, {
+                        z: needle.userData.targetAngle,
+                        duration: 0.8,
+                        ease: "elastic.out(1, 0.3)",
+                        onComplete: () => {
+                            stopNeedleSpinning(needle);
+                        }
+                    });
+                }
+            });
+            
+            console.log(`🌀 Started ${rotations} rotation(s) for needle ${needle.userData.metric}`);
         }
         
         function stopNeedleSpinning(needle) {
             if (!needle.userData.isSpinning) return;
             
             needle.userData.isSpinning = false;
-            
-            // Smooth return to original position
-            gsap.to(needle.rotation, {
-                z: needle.userData.targetAngle,
-                duration: 1.0,
-                ease: "elastic.out(1, 0.3)"
-            });
             
             // Reset visual effects
             gsap.to(needle.material, {
@@ -1531,25 +1551,12 @@
                 ease: "back.out(1.7)"
             });
             
-            console.log(`⏹️ Stopped spinning needle for ${needle.userData.metric}`);
+            console.log(`⏹️ Finished spinning needle for ${needle.userData.metric}`);
         }
         
         function updateNeedleSpinning() {
-            const time = Date.now() * 0.001;
-            
-            needles.forEach(needle => {
-                if (needle.userData.isNeedle && needle.userData.isSpinning) {
-                    // Continuous spinning with varying speed
-                    const spinDuration = (Date.now() - needle.userData.spinStartTime) * 0.001;
-                    const spinSpeed = 2.0 + Math.sin(spinDuration * 0.5) * 0.5; // Variable speed
-                    needle.rotation.z += spinSpeed * 0.02;
-                    
-                    // Stop spinning immediately when mouse leaves
-                    if (!needle.userData.isHovered) {
-                        stopNeedleSpinning(needle);
-                    }
-                }
-            });
+            // Note: Spinning is now handled by GSAP animations in startNeedleSpinning
+            // This function can be used for any additional spinning-related updates if needed
         }
         
         function animate() {
