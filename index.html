@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1963 Executive Cockpit - Luxury Sales Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0B4D3B 0%, #1a1a1a 100%);
+            overflow: hidden;
+            height: 100vh;
+            color: #F5F5DC;
+        }
+
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #canvas {
+            display: block;
+            cursor: grab;
+        }
+
+        #canvas:active {
+            cursor: grabbing;
+        }
+
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            color: #F5F5DC;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        #performance-summary {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #B7895F;
+            font-size: 18px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            z-index: 200;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #B7895F;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity 1s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            #hud {
+                top: 10px;
+                left: 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="loading">
+            <div class="loading-spinner"></div>
+            INITIALIZING 1963 COCKPIT
+        </div>
+        
+        <div id="hud">
+            <div id="performance-summary">
+                <div>Q4 Progress: <span id="quarter-progress">87%</span></div>
+                <div>Ranking: <span id="ranking">#3</span></div>
+                <div>Velocity: <span id="velocity">12 days</span></div>
+            </div>
+        </div>
+        
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/environments.js"></script>
+    <script src="js/advanced-interactions.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
