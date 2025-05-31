@@ -389,7 +389,7 @@ class EnvironmentManager {
         
         // Main star point
         const starGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-        const starMaterial = new THREE.MeshBasicMaterial({
+        const starMaterial = new THREE.MeshLambertMaterial({
             color: 0xFFFFFF,
             emissive: 0xFFFFFF,
             emissiveIntensity: 0.8,
@@ -403,7 +403,7 @@ class EnvironmentManager {
         // Create trail effect with multiple smaller spheres
         for (let i = 1; i <= 8; i++) {
             const trailGeometry = new THREE.SphereGeometry(0.02 * (1 - i * 0.1), 6, 6);
-            const trailMaterial = new THREE.MeshBasicMaterial({
+            const trailMaterial = new THREE.MeshLambertMaterial({
                 color: 0xFFFFFF,
                 emissive: 0xFFFFFF,
                 emissiveIntensity: 0.4 * (1 - i * 0.1),
