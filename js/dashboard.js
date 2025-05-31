@@ -426,7 +426,4 @@ class LuxuryDashboard {
     }
 }
 
-// Initialize the dashboard when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    new LuxuryDashboard();
-});
+// Dashboard will be initialized from index.html after all scripts load
