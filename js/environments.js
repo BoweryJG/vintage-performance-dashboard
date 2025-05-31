@@ -368,7 +368,7 @@ class EnvironmentManager {
     // Helper methods for creating environment objects
     createShootingStar() {
         const geometry = new THREE.CylinderGeometry(0.02, 0.02, 2, 8);
-        const material = new THREE.MeshBasicMaterial({
+        const material = new THREE.MeshLambertMaterial({
             color: 0xFFFFFF,
             emissive: 0xFFFFFF,
             emissiveIntensity: 0.5

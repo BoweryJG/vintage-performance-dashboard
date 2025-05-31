@@ -226,10 +226,9 @@ class LuxuryDashboard {
         
         // Needle
         const needleGeometry = new THREE.ConeGeometry(0.02, config.size * 0.8, 8);
-        const needleMaterial = new THREE.MeshPhysicalMaterial({
+        const needleMaterial = new THREE.MeshPhongMaterial({
             color: config.color,
-            metalness: 0.8,
-            roughness: 0.2,
+            shininess: 100,
             emissive: config.color,
             emissiveIntensity: 0.2
         });
