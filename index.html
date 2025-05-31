@@ -601,104 +601,114 @@
         }
         
         function createSpaceEnvironment() {
-            scene.background = new THREE.Color(0x000011);
+            // Deep space gradient background
+            scene.background = new THREE.Color(0x000008);
+            scene.fog = null; // Clear any fog for deep space
             
-            // Stars
-            const starGeometry = new THREE.BufferGeometry();
-            const starPositions = [];
+            // Enhanced multi-layer star field
+            createStarField();
+            createDistantGalaxies();
+            createColoredNebulae();
+            createAsteroidField();
+            createPulsarEffects();
             
-            for (let i = 0; i < 2000; i++) {
-                starPositions.push(
-                    (Math.random() - 0.5) * 2000,
-                    (Math.random() - 0.5) * 2000,
-                    (Math.random() - 0.5) * 2000
-                );
-            }
-            
-            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
-            
-            const starMaterial = new THREE.PointsMaterial({
-                color: 0xFFFFFF,
-                size: 2,
-                sizeAttenuation: false
-            });
-            
-            const stars = new THREE.Points(starGeometry, starMaterial);
-            stars.userData.isEnvironment = true;
-            scene.add(stars);
-            
-            // Nebula effect
-            const nebulaGeometry = new THREE.PlaneGeometry(1000, 1000);
-            const nebulaMaterial = new THREE.MeshBasicMaterial({
-                color: 0x4169E1,
-                transparent: true,
-                opacity: 0.1
-            });
-            
-            const nebula = new THREE.Mesh(nebulaGeometry, nebulaMaterial);
-            nebula.position.z = -500;
-            nebula.userData.isEnvironment = true;
-            scene.add(nebula);
-            
-            // Ambient lighting for space
-            const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1.2);
+            // Enhanced space lighting
+            const ambientLight = new THREE.AmbientLight(0x9999FF, 1.0);
             ambientLight.userData.isEnvironment = true;
             scene.add(ambientLight);
             
-            // Key light for gauges
-            const keyLight = new THREE.DirectionalLight(0xFFFFFF, 2);
+            // Key light for gauges with subtle blue tint
+            const keyLight = new THREE.DirectionalLight(0xCCDDFF, 2);
             keyLight.position.set(0, 10, 10);
             keyLight.userData.isEnvironment = true;
             scene.add(keyLight);
+            
+            // Distant star light
+            const starLight = new THREE.DirectionalLight(0xFFFFAA, 0.5);
+            starLight.position.set(-50, 20, -30);
+            starLight.userData.isEnvironment = true;
+            scene.add(starLight);
         }
         
         function createOceanEnvironment() {
-            scene.background = new THREE.Color(0x003366);
+            // Deep ocean gradient background
+            scene.background = new THREE.Color(0x001133);
+            scene.fog = new THREE.Fog(0x002244, 20, 100);
             
-            // Ocean floor
-            const oceanFloor = new THREE.PlaneGeometry(2000, 2000);
+            // Animated ocean floor with sand ripples
+            const oceanFloor = new THREE.PlaneGeometry(2000, 2000, 100, 100);
             const oceanMaterial = new THREE.MeshPhysicalMaterial({
-                color: 0x004488,
-                roughness: 0.1,
+                color: 0x003366,
+                roughness: 0.8,
                 metalness: 0.1,
                 transparent: true,
-                opacity: 0.8
+                opacity: 0.9,
+                normalScale: new THREE.Vector2(0.5, 0.5)
             });
             
             const floor = new THREE.Mesh(oceanFloor, oceanMaterial);
             floor.rotation.x = -Math.PI / 2;
-            floor.position.y = -100;
+            floor.position.y = -80;
             floor.userData.isEnvironment = true;
+            floor.userData.isOceanFloor = true;
             scene.add(floor);
             
-            // Ambient ocean lighting
-            const oceanLight = new THREE.AmbientLight(0x004488, 0.5);
-            oceanLight.userData.isEnvironment = true;
-            scene.add(oceanLight);
+            // Underwater caustic lighting effect
+            const causticLight = new THREE.DirectionalLight(0x4499FF, 1.5);
+            causticLight.position.set(20, 50, 30);
+            causticLight.userData.isEnvironment = true;
+            causticLight.userData.isCausticLight = true;
+            scene.add(causticLight);
+            
+            // Ambient underwater lighting
+            const oceanAmbient = new THREE.AmbientLight(0x002255, 0.6);
+            oceanAmbient.userData.isEnvironment = true;
+            scene.add(oceanAmbient);
+            
+            // Create bubble particle system
+            createBubbleSystem();
+            
+            // Create floating kelp/seaweed
+            createKelpForest();
+            
+            // Create swimming fish silhouettes
+            createFishSchool();
+            
+            // Create underwater rock formations
+            createCoralFormations();
         }
         
         function createDesertEnvironment() {
-            scene.background = new THREE.Color(0x8B4513);
+            // Intense desert sky with gradient
+            scene.background = new THREE.Color(0xFFB366);
+            scene.fog = new THREE.Fog(0xFFD4AA, 50, 200);
             
-            // Desert ground
-            const desertGround = new THREE.PlaneGeometry(2000, 2000);
-            const desertMaterial = new THREE.MeshPhysicalMaterial({
-                color: 0xD2B48C,
-                roughness: 0.9,
-                metalness: 0.0
-            });
+            // Multi-layered desert terrain
+            createDesertTerrain();
+            createSandDunes();
+            createSandStorm();
+            createCactiSilhouettes();
+            createMirageEffect();
+            createDesertRocks();
             
-            const ground = new THREE.Mesh(desertGround, desertMaterial);
-            ground.rotation.x = -Math.PI / 2;
-            ground.position.y = -50;
-            ground.userData.isEnvironment = true;
-            scene.add(ground);
-            
-            // Desert sun
-            const sunLight = new THREE.DirectionalLight(0xFFD700, 1);
+            // Intense desert sun
+            const sunLight = new THREE.DirectionalLight(0xFFD700, 2.5);
             sunLight.position.set(100, 100, 50);
             sunLight.userData.isEnvironment = true;
+            sunLight.userData.isDesertSun = true;
             scene.add(sunLight);
+            
+            // Harsh ambient lighting
+            const desertAmbient = new THREE.AmbientLight(0xFFCC88, 0.8);
+            desertAmbient.userData.isEnvironment = true;
+            scene.add(desertAmbient);
+            
+            // Heat haze light
+            const heatLight = new THREE.PointLight(0xFFAA44, 1.0, 100);
+            heatLight.position.set(0, 20, 0);
+            heatLight.userData.isEnvironment = true;
+            heatLight.userData.isHeatLight = true;
+            scene.add(heatLight);
         }
         
         function createForestEnvironment() {
@@ -731,6 +741,467 @@
             const coldLight = new THREE.AmbientLight(0xE0FFFF, 0.6);
             coldLight.userData.isEnvironment = true;
             scene.add(coldLight);
+        }
+        
+        // Ocean Environment Helper Functions
+        function createBubbleSystem() {
+            const bubbleGeometry = new THREE.BufferGeometry();
+            const bubblePositions = [];
+            const bubbleSizes = [];
+            
+            for (let i = 0; i < 150; i++) {
+                bubblePositions.push(
+                    (Math.random() - 0.5) * 200,
+                    Math.random() * 100 - 50,
+                    (Math.random() - 0.5) * 200
+                );
+                bubbleSizes.push(Math.random() * 2 + 0.5);
+            }
+            
+            bubbleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(bubblePositions, 3));
+            bubbleGeometry.setAttribute('size', new THREE.Float32BufferAttribute(bubbleSizes, 1));
+            
+            const bubbleMaterial = new THREE.PointsMaterial({
+                color: 0x88CCFF,
+                size: 1.5,
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 0.6,
+                alphaTest: 0.1
+            });
+            
+            const bubbles = new THREE.Points(bubbleGeometry, bubbleMaterial);
+            bubbles.userData.isEnvironment = true;
+            bubbles.userData.isBubbles = true;
+            scene.add(bubbles);
+        }
+        
+        function createKelpForest() {
+            for (let i = 0; i < 12; i++) {
+                const kelpGeometry = new THREE.CylinderGeometry(0.1, 0.3, 8, 8);
+                const kelpMaterial = new THREE.MeshPhysicalMaterial({
+                    color: 0x2d5016,
+                    transparent: true,
+                    opacity: 0.8,
+                    roughness: 0.9
+                });
+                
+                const kelp = new THREE.Mesh(kelpGeometry, kelpMaterial);
+                kelp.position.set(
+                    (Math.random() - 0.5) * 150,
+                    -40,
+                    (Math.random() - 0.5) * 150
+                );
+                kelp.rotation.z = (Math.random() - 0.5) * 0.3;
+                kelp.userData.isEnvironment = true;
+                kelp.userData.isKelp = true;
+                kelp.userData.swayOffset = Math.random() * Math.PI * 2;
+                scene.add(kelp);
+            }
+        }
+        
+        function createFishSchool() {
+            const fishGroup = new THREE.Group();
+            
+            for (let i = 0; i < 8; i++) {
+                const fishGeometry = new THREE.ConeGeometry(0.2, 1, 4);
+                const fishMaterial = new THREE.MeshPhysicalMaterial({
+                    color: 0x4477AA,
+                    transparent: true,
+                    opacity: 0.7,
+                    emissive: 0x113355,
+                    emissiveIntensity: 0.1
+                });
+                
+                const fish = new THREE.Mesh(fishGeometry, fishMaterial);
+                fish.position.set(
+                    (Math.random() - 0.5) * 80,
+                    Math.random() * 40 - 20,
+                    (Math.random() - 0.5) * 80
+                );
+                fish.rotation.z = Math.PI / 2;
+                fish.userData.swimOffset = Math.random() * Math.PI * 2;
+                fish.userData.swimRadius = 20 + Math.random() * 30;
+                fish.userData.swimSpeed = 0.5 + Math.random() * 0.5;
+                fishGroup.add(fish);
+            }
+            
+            fishGroup.userData.isEnvironment = true;
+            fishGroup.userData.isFishSchool = true;
+            scene.add(fishGroup);
+        }
+        
+        function createCoralFormations() {
+            for (let i = 0; i < 6; i++) {
+                const coralGeometry = new THREE.DodecahedronGeometry(1 + Math.random() * 2, 0);
+                const coralMaterial = new THREE.MeshPhysicalMaterial({
+                    color: new THREE.Color().setHSL(0.9 + Math.random() * 0.1, 0.8, 0.6),
+                    roughness: 0.9,
+                    metalness: 0.1,
+                    emissive: new THREE.Color().setHSL(0.9 + Math.random() * 0.1, 0.5, 0.1),
+                    emissiveIntensity: 0.2
+                });
+                
+                const coral = new THREE.Mesh(coralGeometry, coralMaterial);
+                coral.position.set(
+                    (Math.random() - 0.5) * 120,
+                    -70 + Math.random() * 10,
+                    (Math.random() - 0.5) * 120
+                );
+                coral.scale.set(
+                    0.5 + Math.random() * 0.8,
+                    0.3 + Math.random() * 1.2,
+                    0.5 + Math.random() * 0.8
+                );
+                coral.userData.isEnvironment = true;
+                coral.userData.isCoral = true;
+                scene.add(coral);
+            }
+        }
+        
+        // Space Environment Helper Functions
+        function createStarField() {
+            // Layer 1: Distant small stars
+            const distantStars = new THREE.BufferGeometry();
+            const distantPositions = [];
+            const distantColors = [];
+            
+            for (let i = 0; i < 3000; i++) {
+                distantPositions.push(
+                    (Math.random() - 0.5) * 2000,
+                    (Math.random() - 0.5) * 2000,
+                    (Math.random() - 0.5) * 2000
+                );
+                
+                // Vary star colors (white, blue, yellow, red)
+                const starType = Math.random();
+                const color = new THREE.Color();
+                if (starType < 0.6) color.setHex(0xFFFFFF);      // White
+                else if (starType < 0.8) color.setHex(0xAADDFF); // Blue
+                else if (starType < 0.95) color.setHex(0xFFFFAA); // Yellow
+                else color.setHex(0xFFAAAA);                      // Red
+                
+                distantColors.push(color.r, color.g, color.b);
+            }
+            
+            distantStars.setAttribute('position', new THREE.Float32BufferAttribute(distantPositions, 3));
+            distantStars.setAttribute('color', new THREE.Float32BufferAttribute(distantColors, 3));
+            
+            const distantMaterial = new THREE.PointsMaterial({
+                size: 1.0,
+                sizeAttenuation: true,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            const distantStarField = new THREE.Points(distantStars, distantMaterial);
+            distantStarField.userData.isEnvironment = true;
+            distantStarField.userData.isStarField = true;
+            distantStarField.userData.rotationSpeed = 0.0001;
+            scene.add(distantStarField);
+            
+            // Layer 2: Brighter foreground stars
+            const brightStars = new THREE.BufferGeometry();
+            const brightPositions = [];
+            const brightSizes = [];
+            
+            for (let i = 0; i < 200; i++) {
+                brightPositions.push(
+                    (Math.random() - 0.5) * 800,
+                    (Math.random() - 0.5) * 800,
+                    (Math.random() - 0.5) * 800
+                );
+                brightSizes.push(Math.random() * 3 + 1);
+            }
+            
+            brightStars.setAttribute('position', new THREE.Float32BufferAttribute(brightPositions, 3));
+            brightStars.setAttribute('size', new THREE.Float32BufferAttribute(brightSizes, 1));
+            
+            const brightMaterial = new THREE.PointsMaterial({
+                color: 0xFFFFFF,
+                size: 3.0,
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 0.9
+            });
+            
+            const brightStarField = new THREE.Points(brightStars, brightMaterial);
+            brightStarField.userData.isEnvironment = true;
+            brightStarField.userData.isBrightStars = true;
+            brightStarField.userData.rotationSpeed = 0.0002;
+            scene.add(brightStarField);
+        }
+        
+        function createDistantGalaxies() {
+            for (let i = 0; i < 3; i++) {
+                const galaxyGeometry = new THREE.PlaneGeometry(150, 150);
+                const galaxyMaterial = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color().setHSL(0.7 + Math.random() * 0.3, 0.8, 0.3),
+                    transparent: true,
+                    opacity: 0.15,
+                    blending: THREE.AdditiveBlending
+                });
+                
+                const galaxy = new THREE.Mesh(galaxyGeometry, galaxyMaterial);
+                galaxy.position.set(
+                    (Math.random() - 0.5) * 1500,
+                    (Math.random() - 0.5) * 1500,
+                    -800 - Math.random() * 500
+                );
+                galaxy.rotation.z = Math.random() * Math.PI * 2;
+                galaxy.userData.isEnvironment = true;
+                galaxy.userData.isGalaxy = true;
+                galaxy.userData.rotationSpeed = (Math.random() - 0.5) * 0.001;
+                scene.add(galaxy);
+            }
+        }
+        
+        function createColoredNebulae() {
+            const nebulaColors = [0x4169E1, 0xFF69B4, 0x00CED1, 0xFF6347, 0x9370DB];
+            
+            for (let i = 0; i < 5; i++) {
+                const nebulaGeometry = new THREE.PlaneGeometry(300 + Math.random() * 200, 200 + Math.random() * 150);
+                const nebulaMaterial = new THREE.MeshBasicMaterial({
+                    color: nebulaColors[i],
+                    transparent: true,
+                    opacity: 0.08,
+                    blending: THREE.AdditiveBlending
+                });
+                
+                const nebula = new THREE.Mesh(nebulaGeometry, nebulaMaterial);
+                nebula.position.set(
+                    (Math.random() - 0.5) * 1200,
+                    (Math.random() - 0.5) * 1200,
+                    -400 - Math.random() * 300
+                );
+                nebula.rotation.z = Math.random() * Math.PI * 2;
+                nebula.userData.isEnvironment = true;
+                nebula.userData.isNebula = true;
+                nebula.userData.pulseOffset = Math.random() * Math.PI * 2;
+                scene.add(nebula);
+            }
+        }
+        
+        function createAsteroidField() {
+            for (let i = 0; i < 15; i++) {
+                const asteroidGeometry = new THREE.DodecahedronGeometry(0.5 + Math.random() * 2, 0);
+                const asteroidMaterial = new THREE.MeshPhysicalMaterial({
+                    color: 0x444444,
+                    roughness: 0.9,
+                    metalness: 0.1
+                });
+                
+                const asteroid = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
+                asteroid.position.set(
+                    (Math.random() - 0.5) * 400,
+                    (Math.random() - 0.5) * 400,
+                    (Math.random() - 0.5) * 400
+                );
+                asteroid.rotation.set(
+                    Math.random() * Math.PI * 2,
+                    Math.random() * Math.PI * 2,
+                    Math.random() * Math.PI * 2
+                );
+                asteroid.userData.isEnvironment = true;
+                asteroid.userData.isAsteroid = true;
+                asteroid.userData.rotationSpeed = {
+                    x: (Math.random() - 0.5) * 0.02,
+                    y: (Math.random() - 0.5) * 0.02,
+                    z: (Math.random() - 0.5) * 0.02
+                };
+                scene.add(asteroid);
+            }
+        }
+        
+        function createPulsarEffects() {
+            for (let i = 0; i < 2; i++) {
+                const pulsarGeometry = new THREE.SphereGeometry(0.5, 8, 8);
+                const pulsarMaterial = new THREE.MeshBasicMaterial({
+                    color: i === 0 ? 0x00FFFF : 0xFF00FF,
+                    transparent: true,
+                    opacity: 0.8,
+                    emissive: i === 0 ? 0x00FFFF : 0xFF00FF,
+                    emissiveIntensity: 0.5
+                });
+                
+                const pulsar = new THREE.Mesh(pulsarGeometry, pulsarMaterial);
+                pulsar.position.set(
+                    (Math.random() - 0.5) * 300,
+                    (Math.random() - 0.5) * 300,
+                    (Math.random() - 0.5) * 300
+                );
+                pulsar.userData.isEnvironment = true;
+                pulsar.userData.isPulsar = true;
+                pulsar.userData.pulseOffset = Math.random() * Math.PI * 2;
+                scene.add(pulsar);
+            }
+        }
+        
+        // Desert Environment Helper Functions
+        function createDesertTerrain() {
+            const terrainGeometry = new THREE.PlaneGeometry(2000, 2000, 50, 50);
+            const terrainMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xD2B48C,
+                roughness: 0.95,
+                metalness: 0.0
+            });
+            
+            // Add some height variation to terrain
+            const positions = terrainGeometry.attributes.position.array;
+            for (let i = 2; i < positions.length; i += 3) {
+                positions[i] = Math.sin(positions[i - 2] * 0.01) * Math.cos(positions[i - 1] * 0.01) * 3;
+            }
+            terrainGeometry.attributes.position.needsUpdate = true;
+            terrainGeometry.computeVertexNormals();
+            
+            const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+            terrain.rotation.x = -Math.PI / 2;
+            terrain.position.y = -50;
+            terrain.userData.isEnvironment = true;
+            terrain.userData.isDesertTerrain = true;
+            scene.add(terrain);
+        }
+        
+        function createSandDunes() {
+            for (let i = 0; i < 8; i++) {
+                const duneGeometry = new THREE.SphereGeometry(15 + Math.random() * 25, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.6);
+                const duneMaterial = new THREE.MeshPhysicalMaterial({
+                    color: 0xE6C2A6,
+                    roughness: 0.9,
+                    metalness: 0.0
+                });
+                
+                const dune = new THREE.Mesh(duneGeometry, duneMaterial);
+                dune.position.set(
+                    (Math.random() - 0.5) * 400,
+                    -35,
+                    (Math.random() - 0.5) * 400
+                );
+                dune.rotation.y = Math.random() * Math.PI * 2;
+                dune.userData.isEnvironment = true;
+                dune.userData.isDune = true;
+                scene.add(dune);
+            }
+        }
+        
+        function createSandStorm() {
+            const sandGeometry = new THREE.BufferGeometry();
+            const sandPositions = [];
+            const sandVelocities = [];
+            
+            for (let i = 0; i < 300; i++) {
+                sandPositions.push(
+                    (Math.random() - 0.5) * 500,
+                    Math.random() * 100 - 20,
+                    (Math.random() - 0.5) * 500
+                );
+                sandVelocities.push(
+                    (Math.random() - 0.5) * 0.5,
+                    Math.random() * 0.2,
+                    (Math.random() - 0.5) * 0.5
+                );
+            }
+            
+            sandGeometry.setAttribute('position', new THREE.Float32BufferAttribute(sandPositions, 3));
+            sandGeometry.setAttribute('velocity', new THREE.Float32BufferAttribute(sandVelocities, 3));
+            
+            const sandMaterial = new THREE.PointsMaterial({
+                color: 0xDDB892,
+                size: 2.0,
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 0.6
+            });
+            
+            const sandStorm = new THREE.Points(sandGeometry, sandMaterial);
+            sandStorm.userData.isEnvironment = true;
+            sandStorm.userData.isSandStorm = true;
+            scene.add(sandStorm);
+        }
+        
+        function createCactiSilhouettes() {
+            for (let i = 0; i < 5; i++) {
+                const cactusGroup = new THREE.Group();
+                
+                // Main stem
+                const stemGeometry = new THREE.CylinderGeometry(0.5, 0.8, 6, 8);
+                const cactusMaterial = new THREE.MeshPhysicalMaterial({
+                    color: 0x2d5016,
+                    roughness: 0.9,
+                    metalness: 0.0
+                });
+                
+                const stem = new THREE.Mesh(stemGeometry, cactusMaterial);
+                stem.position.y = 1;
+                cactusGroup.add(stem);
+                
+                // Arms
+                if (Math.random() > 0.3) {
+                    const armGeometry = new THREE.CylinderGeometry(0.3, 0.4, 3, 8);
+                    const arm = new THREE.Mesh(armGeometry, cactusMaterial);
+                    arm.position.set(1, 2, 0);
+                    arm.rotation.z = Math.PI / 3;
+                    cactusGroup.add(arm);
+                }
+                
+                cactusGroup.position.set(
+                    (Math.random() - 0.5) * 300,
+                    -47,
+                    (Math.random() - 0.5) * 300
+                );
+                cactusGroup.userData.isEnvironment = true;
+                cactusGroup.userData.isCactus = true;
+                scene.add(cactusGroup);
+            }
+        }
+        
+        function createMirageEffect() {
+            const mirageGeometry = new THREE.PlaneGeometry(100, 50);
+            const mirageMaterial = new THREE.MeshBasicMaterial({
+                color: 0x87CEEB,
+                transparent: true,
+                opacity: 0.2,
+                blending: THREE.AdditiveBlending
+            });
+            
+            const mirage = new THREE.Mesh(mirageGeometry, mirageMaterial);
+            mirage.position.set(0, -48, -80);
+            mirage.rotation.x = -Math.PI / 2;
+            mirage.userData.isEnvironment = true;
+            mirage.userData.isMirage = true;
+            scene.add(mirage);
+        }
+        
+        function createDesertRocks() {
+            for (let i = 0; i < 10; i++) {
+                const rockGeometry = new THREE.DodecahedronGeometry(1 + Math.random() * 3, 0);
+                const rockMaterial = new THREE.MeshPhysicalMaterial({
+                    color: 0x8B7355,
+                    roughness: 0.9,
+                    metalness: 0.0
+                });
+                
+                const rock = new THREE.Mesh(rockGeometry, rockMaterial);
+                rock.position.set(
+                    (Math.random() - 0.5) * 200,
+                    -48 + Math.random() * 2,
+                    (Math.random() - 0.5) * 200
+                );
+                rock.rotation.set(
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI
+                );
+                rock.scale.set(
+                    0.5 + Math.random() * 1.5,
+                    0.3 + Math.random() * 1.2,
+                    0.5 + Math.random() * 1.5
+                );
+                rock.userData.isEnvironment = true;
+                rock.userData.isDesertRock = true;
+                scene.add(rock);
+            }
         }
         
         function createVintageDashboard() {
@@ -1580,8 +2051,142 @@
             // Environment-specific animations
             if (currentEnvironment === 'space') {
                 scene.children.forEach(child => {
-                    if (child.userData.isEnvironment && child.type === 'Points') {
-                        child.rotation.y += 0.0002;
+                    if (child.userData.isEnvironment) {
+                        // Animate layered star fields
+                        if (child.userData.isStarField || child.userData.isBrightStars) {
+                            child.rotation.y += child.userData.rotationSpeed;
+                            child.rotation.x += child.userData.rotationSpeed * 0.5;
+                        }
+                        
+                        // Animate distant galaxies
+                        if (child.userData.isGalaxy) {
+                            child.rotation.z += child.userData.rotationSpeed;
+                            child.material.opacity = 0.15 + Math.sin(time * 0.5 + child.position.x * 0.01) * 0.05;
+                        }
+                        
+                        // Animate colorful nebulae
+                        if (child.userData.isNebula) {
+                            child.rotation.z += 0.0005;
+                            child.material.opacity = 0.08 + Math.sin(time * 0.8 + child.userData.pulseOffset) * 0.03;
+                            child.position.x += Math.sin(time * 0.2 + child.userData.pulseOffset) * 0.1;
+                        }
+                        
+                        // Animate asteroid field
+                        if (child.userData.isAsteroid) {
+                            child.rotation.x += child.userData.rotationSpeed.x;
+                            child.rotation.y += child.userData.rotationSpeed.y;
+                            child.rotation.z += child.userData.rotationSpeed.z;
+                        }
+                        
+                        // Animate pulsars
+                        if (child.userData.isPulsar) {
+                            const pulseIntensity = 0.5 + Math.sin(time * 5 + child.userData.pulseOffset) * 0.4;
+                            child.material.emissiveIntensity = pulseIntensity;
+                            child.scale.setScalar(0.8 + pulseIntensity * 0.4);
+                        }
+                    }
+                });
+            } else if (currentEnvironment === 'ocean') {
+                scene.children.forEach(child => {
+                    if (child.userData.isEnvironment) {
+                        // Animate ocean floor with wave-like motion
+                        if (child.userData.isOceanFloor) {
+                            child.rotation.z = Math.sin(time * 0.5) * 0.02;
+                            child.position.y = -80 + Math.sin(time * 0.3) * 2;
+                        }
+                        
+                        // Animate bubbles rising
+                        if (child.userData.isBubbles) {
+                            const positions = child.geometry.attributes.position.array;
+                            for (let i = 1; i < positions.length; i += 3) {
+                                positions[i] += 0.1; // Rise up
+                                if (positions[i] > 60) {
+                                    positions[i] = -60; // Reset to bottom
+                                }
+                            }
+                            child.geometry.attributes.position.needsUpdate = true;
+                            child.rotation.y += 0.005;
+                        }
+                        
+                        // Animate kelp swaying
+                        if (child.userData.isKelp) {
+                            const swayAmount = Math.sin(time * 1.5 + child.userData.swayOffset) * 0.3;
+                            child.rotation.z = swayAmount;
+                            child.rotation.x = Math.sin(time * 0.8 + child.userData.swayOffset) * 0.1;
+                        }
+                        
+                        // Animate fish swimming in schools
+                        if (child.userData.isFishSchool) {
+                            child.children.forEach((fish, index) => {
+                                const swimTime = time * fish.userData.swimSpeed + fish.userData.swimOffset;
+                                const radius = fish.userData.swimRadius;
+                                fish.position.x = Math.cos(swimTime) * radius;
+                                fish.position.z = Math.sin(swimTime) * radius;
+                                fish.position.y += Math.sin(swimTime * 2) * 0.5;
+                                fish.rotation.y = swimTime;
+                            });
+                        }
+                        
+                        // Animate caustic lighting
+                        if (child.userData.isCausticLight) {
+                            child.intensity = 1.5 + Math.sin(time * 2) * 0.3;
+                            child.position.x = 20 + Math.sin(time * 0.7) * 10;
+                            child.position.z = 30 + Math.cos(time * 0.5) * 15;
+                        }
+                        
+                        // Gentle coral glow pulsing
+                        if (child.userData.isCoral) {
+                            if (child.material.emissiveIntensity) {
+                                child.material.emissiveIntensity = 0.2 + Math.sin(time * 3 + child.position.x) * 0.1;
+                            }
+                        }
+                    }
+                });
+            } else if (currentEnvironment === 'desert') {
+                scene.children.forEach(child => {
+                    if (child.userData.isEnvironment) {
+                        // Animate sand storm particles
+                        if (child.userData.isSandStorm) {
+                            const positions = child.geometry.attributes.position.array;
+                            const velocities = child.geometry.attributes.velocity.array;
+                            
+                            for (let i = 0; i < positions.length; i += 3) {
+                                positions[i] += velocities[i];
+                                positions[i + 1] += velocities[i + 1];
+                                positions[i + 2] += velocities[i + 2];
+                                
+                                // Reset particles that go too far
+                                if (positions[i] > 250) positions[i] = -250;
+                                if (positions[i] < -250) positions[i] = 250;
+                                if (positions[i + 2] > 250) positions[i + 2] = -250;
+                                if (positions[i + 2] < -250) positions[i + 2] = 250;
+                            }
+                            child.geometry.attributes.position.needsUpdate = true;
+                        }
+                        
+                        // Animate mirage effect
+                        if (child.userData.isMirage) {
+                            child.material.opacity = 0.2 + Math.sin(time * 2) * 0.1;
+                            child.position.x = Math.sin(time * 0.5) * 5;
+                            child.scale.x = 1 + Math.sin(time * 1.5) * 0.1;
+                        }
+                        
+                        // Animate desert sun intensity
+                        if (child.userData.isDesertSun) {
+                            child.intensity = 2.5 + Math.sin(time * 0.8) * 0.3;
+                            child.position.y = 100 + Math.sin(time * 0.1) * 10;
+                        }
+                        
+                        // Animate heat haze
+                        if (child.userData.isHeatLight) {
+                            child.intensity = 1.0 + Math.sin(time * 3) * 0.5;
+                            child.position.y = 20 + Math.sin(time * 2) * 5;
+                        }
+                        
+                        // Gentle cactus sway
+                        if (child.userData.isCactus) {
+                            child.rotation.z = Math.sin(time * 0.5 + child.position.x * 0.1) * 0.05;
+                        }
                     }
                 });
             }
