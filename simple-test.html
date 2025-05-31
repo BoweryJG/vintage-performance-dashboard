@@ -39,11 +39,13 @@
             const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
             scene.add(ambientLight);
 
-            // Simple dashboard base
-            const dashGeometry = new THREE.BoxGeometry(10, 0.5, 6);
+            // CURVED dashboard base facing user
+            const dashGeometry = new THREE.CylinderGeometry(6, 6, 0.8, 32, 1, false, 0, Math.PI);
             const dashMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
             dashboard = new THREE.Mesh(dashGeometry, dashMaterial);
             dashboard.position.y = -1;
+            dashboard.rotation.x = Math.PI / 6;  // Tilt toward user
+            dashboard.rotation.y = Math.PI;      // Face the user
             scene.add(dashboard);
 
             // Create 5 simple gauges
@@ -55,11 +57,11 @@
 
         function createSimpleGauges() {
             const positions = [
-                { x: 0, y: 0, z: 0 },      // Center
-                { x: -3, y: 0, z: 0 },     // Left  
-                { x: 3, y: 0, z: 0 },      // Right
-                { x: -1.5, y: 0, z: -2 },  // Back left
-                { x: 1.5, y: 0, z: -2 }    // Back right
+                { x: 0, y: 0.5, z: 2 },      // Center front
+                { x: -2.5, y: 0.8, z: 3 },   // Left  
+                { x: 2.5, y: 0.8, z: 3 },    // Right
+                { x: -1.5, y: 1, z: 4 },     // Back left
+                { x: 1.5, y: 1, z: 4 }       // Back right
             ];
 
             const colors = [0x00ff00, 0xff8800, 0x0088ff, 0xff00ff, 0xffff00];
