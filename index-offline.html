@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1963 Executive Cockpit - Luxury Sales Dashboard</title>
+    <title>1963 Executive Cockpit - Luxury Sales Dashboard (Offline)</title>
     <style>
         * {
             margin: 0;
@@ -108,29 +108,28 @@
         <canvas id="canvas"></canvas>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+    <!-- LOCAL Three.js - No internet required -->
+    <script src="js/libs/three.min.js"></script>
     <script src="js/environments.js"></script>
     <script src="js/advanced-interactions.js"></script>
     <script src="js/dashboard.js"></script>
     <script>
-        // Simple initialization after page loads
+        // Initialize dashboard with local Three.js
         window.addEventListener('load', function() {
             setTimeout(() => {
                 if (typeof THREE !== 'undefined') {
-                    console.log('Three.js loaded successfully:', THREE.REVISION);
+                    console.log('Local Three.js loaded successfully:', THREE.REVISION);
                     new LuxuryDashboard();
                 } else {
-                    console.error('Three.js still not available');
-                    // Show user-friendly error
+                    console.error('Local Three.js failed to load');
                     document.getElementById('loading').innerHTML = `
                         <div style="color: #B7895F; text-align: center;">
-                            <h3>Loading Issue</h3>
-                            <p>Please refresh the page</p>
-                            <p style="font-size: 12px; margin-top: 10px;">Network connection required</p>
+                            <h3>Error Loading Three.js</h3>
+                            <p>Local files may be missing</p>
                         </div>
                     `;
                 }
-            }, 500);
+            }, 200);
         });
     </script>
 </body>
