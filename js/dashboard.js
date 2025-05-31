@@ -72,7 +72,9 @@ class LuxuryDashboard {
     
     setupScene() {
         this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color(0x001122); // FORCE visible background
         this.scene.fog = new THREE.Fog(0x0B4D3B, 10, 50);
+        console.log('Scene background set to blue');
     }
     
     setupCamera() {
@@ -91,7 +93,7 @@ class LuxuryDashboard {
         this.renderer = new THREE.WebGLRenderer({ 
             canvas: document.getElementById('canvas'),
             antialias: true,
-            alpha: true 
+            alpha: false  // CRITICAL: Disable alpha for solid background
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -99,25 +101,30 @@ class LuxuryDashboard {
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1.2;
+        this.renderer.setClearColor(0x001122, 1.0); // FORCE clear color
+        console.log('Renderer configured with solid background');
     }
     
     setupLights() {
-        // Ambient light for overall illumination
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        // BRIGHT ambient light for visibility
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         this.scene.add(ambientLight);
+        console.log('Bright ambient light added');
         
         // Main directional light
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
         directionalLight.position.set(5, 10, 5);
         directionalLight.castShadow = true;
         directionalLight.shadow.mapSize.width = 2048;
         directionalLight.shadow.mapSize.height = 2048;
         this.scene.add(directionalLight);
+        console.log('Directional light added');
         
         // Warm accent light for dashboard
-        const warmLight = new THREE.PointLight(0xB7895F, 0.5, 10);
+        const warmLight = new THREE.PointLight(0xB7895F, 1.0, 20);
         warmLight.position.set(0, 3, 5);
         this.scene.add(warmLight);
+        console.log('Warm accent light added');
     }
     
     createDashboard() {
@@ -164,6 +171,14 @@ class LuxuryDashboard {
         this.dashboardGroup.add(leather);
         
         this.scene.add(this.dashboardGroup);
+        
+        // DEBUG: Add a visible test cube to verify rendering
+        const testGeometry = new THREE.BoxGeometry(1, 1, 1);
+        const testMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+        const testCube = new THREE.Mesh(testGeometry, testMaterial);
+        testCube.position.set(5, 2, 5);
+        this.scene.add(testCube);
+        console.log('DEBUG: Red test cube added at (5,2,5) - should be visible');
     }
     
     createGauges() {
