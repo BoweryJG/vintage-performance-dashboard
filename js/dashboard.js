@@ -41,15 +41,25 @@ class LuxuryDashboard {
     }
     
     init() {
+        console.log('Initializing dashboard...');
         this.setupScene();
+        console.log('Scene created');
         this.setupCamera();
+        console.log('Camera set up');
         this.setupRenderer();
+        console.log('Renderer set up');
         this.setupLights();
+        console.log('Lights added');
         this.createDashboard();
+        console.log('Dashboard created');
         this.createGauges();
+        console.log('Gauges created:', this.gauges.length);
         this.setupEnvironmentManager();
+        console.log('Environment manager set up');
         this.setupAdvancedInteractions();
+        console.log('Interactions set up');
         this.animate();
+        console.log('Animation started');
         
         // Hide loading screen
         setTimeout(() => {
@@ -72,9 +82,9 @@ class LuxuryDashboard {
             0.1, 
             1000
         );
-        // RESTORE: Perfect vintage automobile driver's seat perspective
-        this.camera.position.set(0, 3, 10);
-        this.camera.lookAt(0, 0, 3);
+        // LUXURY: Perfect vintage automobile driver's seat perspective
+        this.camera.position.set(0, 4, 12);
+        this.camera.lookAt(0, 0, 4);
     }
     
     setupRenderer() {
@@ -111,8 +121,12 @@ class LuxuryDashboard {
     }
     
     createDashboard() {
-        // RESTORE: Curved vintage automobile dashboard with luxury materials
-        const dashboardGeometry = new THREE.CylinderGeometry(8, 8, 0.8, 32, 1, false, 0, Math.PI);
+        // LUXURY: Vintage curved automobile dashboard (research-based)
+        const dashboardGeometry = new THREE.CylinderGeometry(
+            8, 8, 0.8, 32, 1, false, 
+            0, Math.PI  // Half cylinder for dashboard curve
+        );
+        
         const dashboardMaterial = new THREE.MeshPhysicalMaterial({
             color: this.colors.charcoal,
             metalness: 0.7,
@@ -122,20 +136,23 @@ class LuxuryDashboard {
         });
         
         const dashboard = new THREE.Mesh(dashboardGeometry, dashboardMaterial);
-        dashboard.rotation.x = Math.PI / 6; // Angle toward viewer
+        dashboard.rotation.x = Math.PI / 6; // Vintage automotive angle
         dashboard.position.y = -0.5;
         dashboard.castShadow = true;
         dashboard.receiveShadow = true;
         
         this.dashboardGroup.add(dashboard);
         
-        // Luxury cognac leather padding
-        const leatherGeometry = new THREE.CylinderGeometry(7.5, 7.5, 0.15, 32, 1, false, 0, Math.PI);
+        // Cognac leather trim
+        const leatherGeometry = new THREE.CylinderGeometry(
+            7.5, 7.5, 0.15, 32, 1, false,
+            0, Math.PI
+        );
+        
         const leatherMaterial = new THREE.MeshPhysicalMaterial({
             color: this.colors.cognacLeather,
             roughness: 0.8,
-            metalness: 0.1,
-            normalScale: new THREE.Vector2(0.5, 0.5)
+            metalness: 0.1
         });
         
         const leather = new THREE.Mesh(leatherGeometry, leatherMaterial);
@@ -144,20 +161,6 @@ class LuxuryDashboard {
         
         this.dashboardGroup.add(leather);
         
-        // Add vintage dashboard trim
-        const trimGeometry = new THREE.TorusGeometry(7.8, 0.1, 8, 32, Math.PI);
-        const trimMaterial = new THREE.MeshPhysicalMaterial({
-            color: this.colors.silver,
-            metalness: 1.0,
-            roughness: 0.2
-        });
-        
-        const trim = new THREE.Mesh(trimGeometry, trimMaterial);
-        trim.rotation.x = Math.PI / 6;
-        trim.position.y = -0.35;
-        
-        this.dashboardGroup.add(trim);
-        
         this.scene.add(this.dashboardGroup);
     }
     
@@ -165,31 +168,31 @@ class LuxuryDashboard {
         const gaugeConfigs = [
             { 
                 name: 'Performance', 
-                position: { x: 0, y: 0, z: 2 }, 
+                position: { x: 0, y: 0.2, z: 3 }, 
                 value: this.salesData.quarterProgress, 
                 max: 100,
-                size: 1.8,
+                size: 1.5,
                 color: this.colors.racingGreen 
             },
             { 
                 name: 'Revenue', 
-                position: { x: -4, y: 0.2, z: 3.5 }, 
+                position: { x: -4, y: 0.5, z: 5 }, 
                 value: (this.salesData.revenue / this.salesData.quota) * 100, 
                 max: 150,
-                size: 1.3,
+                size: 1.2,
                 color: this.colors.amber 
             },
             { 
                 name: 'Pipeline', 
-                position: { x: 4, y: 0.2, z: 3.5 }, 
+                position: { x: 4, y: 0.5, z: 5 }, 
                 value: 75, 
                 max: 100,
-                size: 1.3,
+                size: 1.2,
                 color: this.colors.silver 
             },
             { 
                 name: 'Velocity', 
-                position: { x: -2.5, y: 0.4, z: 5 }, 
+                position: { x: -2.5, y: 0.8, z: 6.5 }, 
                 value: 30, 
                 max: 50,
                 size: 1.0,
@@ -197,7 +200,7 @@ class LuxuryDashboard {
             },
             { 
                 name: 'Ranking', 
-                position: { x: 2.5, y: 0.4, z: 5 }, 
+                position: { x: 2.5, y: 0.8, z: 6.5 }, 
                 value: 97, 
                 max: 100,
                 size: 1.0,
@@ -215,7 +218,7 @@ class LuxuryDashboard {
     createGauge(config) {
         const group = new THREE.Group();
         
-        // RESTORE: Luxury gauge face with crystal-clear glass effect
+        // LUXURY: Crystal-clear gauge face (research-verified)
         const faceGeometry = new THREE.CylinderGeometry(config.size, config.size, 0.1, 32);
         const faceMaterial = new THREE.MeshPhysicalMaterial({
             color: 0x000000,
@@ -233,7 +236,7 @@ class LuxuryDashboard {
         face.receiveShadow = true;
         group.add(face);
         
-        // RESTORE: Brushed aluminum gauge rim
+        // LUXURY: Brushed aluminum rim
         const rimGeometry = new THREE.TorusGeometry(config.size + 0.1, 0.15, 8, 32);
         const rimMaterial = new THREE.MeshPhysicalMaterial({
             color: this.colors.silver,
@@ -248,7 +251,7 @@ class LuxuryDashboard {
         rim.castShadow = true;
         group.add(rim);
         
-        // RESTORE: Precision needle like luxury watch hands
+        // LUXURY: Precision needle (cone geometry for watch-like appearance)
         const needleGeometry = new THREE.ConeGeometry(0.03, config.size * 0.8, 8);
         const needleMaterial = new THREE.MeshPhysicalMaterial({
             color: config.color,
@@ -262,11 +265,11 @@ class LuxuryDashboard {
         const needle = new THREE.Mesh(needleGeometry, needleMaterial);
         needle.position.set(config.position.x, config.position.y + 0.2, config.position.z);
         needle.rotation.z = this.valueToAngle(config.value, config.max);
-        needle.rotation.x = -Math.PI / 2;
+        needle.rotation.x = -Math.PI / 2; // Point needle correctly
         needle.castShadow = true;
         group.add(needle);
         
-        // RESTORE: Rose gold center hub
+        // LUXURY: Rose gold center hub
         const hubGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.08, 16);
         const hubMaterial = new THREE.MeshPhysicalMaterial({
             color: this.colors.roseGold,
@@ -281,7 +284,7 @@ class LuxuryDashboard {
         hub.castShadow = true;
         group.add(hub);
         
-        // Scale markings
+        // Luxury scale markings
         this.createScaleMarkings(group, config);
         
         return {
