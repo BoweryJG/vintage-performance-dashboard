@@ -1308,6 +1308,9 @@
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(gaugeMeshes);
             
+            // Also check for needle intersections
+            const needleIntersects = raycaster.intersectObjects(needles);
+            
             // Reset all gauges
             gaugeMeshes.forEach(gauge => {
                 if (!gauge.userData.isEnlarged) {
@@ -1315,8 +1318,24 @@
                 }
             });
             
-            // Highlight hovered gauge
-            if (intersects.length > 0) {
+            // Reset all needles to normal state
+            needles.forEach(needle => {
+                if (needle.userData.isNeedle) {
+                    needle.userData.isHovered = false;
+                }
+            });
+            
+            // Handle needle hover - spin on mouseover
+            if (needleIntersects.length > 0) {
+                const needle = needleIntersects[0].object;
+                if (needle.userData.isNeedle && !needle.userData.isSpinning) {
+                    needle.userData.isHovered = true;
+                    startNeedleSpinning(needle);
+                }
+                document.body.style.cursor = 'crosshair';
+            }
+            // Handle gauge hover
+            else if (intersects.length > 0) {
                 const gauge = intersects[0].object;
                 if (!gauge.userData.isEnlarged) {
                     gsap.to(gauge.scale, { x: 1.1, y: 1.1, z: 1.1, duration: 0.2 });
@@ -1466,14 +1485,84 @@
             }
         }
         
+        function startNeedleSpinning(needle) {
+            if (needle.userData.isSpinning) return;
+            
+            needle.userData.isSpinning = true;
+            needle.userData.originalAngle = needle.rotation.z;
+            needle.userData.spinStartTime = Date.now();
+            
+            // Enhanced visual feedback for spinning needle
+            gsap.to(needle.material, {
+                emissiveIntensity: 1.0,
+                duration: 0.2
+            });
+            
+            gsap.to(needle.scale, {
+                x: 1.2, y: 1.2, z: 1.2,
+                duration: 0.3,
+                ease: "back.out(1.7)"
+            });
+            
+            console.log(`🌀 Started spinning needle for ${needle.userData.metric}`);
+        }
+        
+        function stopNeedleSpinning(needle) {
+            if (!needle.userData.isSpinning) return;
+            
+            needle.userData.isSpinning = false;
+            
+            // Smooth return to original position
+            gsap.to(needle.rotation, {
+                z: needle.userData.targetAngle,
+                duration: 1.0,
+                ease: "elastic.out(1, 0.3)"
+            });
+            
+            // Reset visual effects
+            gsap.to(needle.material, {
+                emissiveIntensity: 0.8,
+                duration: 0.5
+            });
+            
+            gsap.to(needle.scale, {
+                x: 1, y: 1, z: 1,
+                duration: 0.5,
+                ease: "back.out(1.7)"
+            });
+            
+            console.log(`⏹️ Stopped spinning needle for ${needle.userData.metric}`);
+        }
+        
+        function updateNeedleSpinning() {
+            const time = Date.now() * 0.001;
+            
+            needles.forEach(needle => {
+                if (needle.userData.isNeedle && needle.userData.isSpinning) {
+                    // Continuous spinning with varying speed
+                    const spinDuration = (Date.now() - needle.userData.spinStartTime) * 0.001;
+                    const spinSpeed = 2.0 + Math.sin(spinDuration * 0.5) * 0.5; // Variable speed
+                    needle.rotation.z += spinSpeed * 0.02;
+                    
+                    // Stop spinning immediately when mouse leaves
+                    if (!needle.userData.isHovered) {
+                        stopNeedleSpinning(needle);
+                    }
+                }
+            });
+        }
+        
         function animate() {
             requestAnimationFrame(animate);
             
             const time = Date.now() * 0.001;
             
-            // Animate needles with precision movement (only after load animation)
+            // Update needle spinning
+            updateNeedleSpinning();
+            
+            // Animate needles with precision movement (only after load animation and not spinning)
             needles.forEach((needle, i) => {
-                if (needle.userData.isNeedle && needle.userData.hasAnimated) {
+                if (needle.userData.isNeedle && needle.userData.hasAnimated && !needle.userData.isSpinning) {
                     // Gentle sweeping motion + subtle flutter
                     const sweep = Math.sin(time * 0.2 + i * 1.3) * 0.015; // Gentle sweep
                     const flutter = Math.sin(time * 0.8 + i * 2.1) * 0.003; // Micro flutter
