@@ -83,11 +83,17 @@ class EnvironmentManager {
                 nebula.rotation.x += 0.0002;
                 nebula.rotation.y += 0.0001;
                 
-                // Animate shooting stars
+                // Animate shooting stars with smooth trails
                 group.children.forEach(child => {
                     if (child.userData.isShootingStar) {
-                        child.position.x -= 0.1;
-                        child.position.y -= 0.05;
+                        child.position.x -= 0.15;
+                        child.position.y -= 0.08;
+                        
+                        // Add slight variation to make movement more organic
+                        child.position.x += Math.sin(Date.now() * 0.01) * 0.01;
+                        child.position.y += Math.cos(Date.now() * 0.008) * 0.005;
+                        
+                        // Reset position when off screen
                         if (child.position.x < -100) {
                             child.position.set(
                                 Math.random() * 50 + 50,
@@ -378,23 +384,47 @@ class EnvironmentManager {
     
     // Helper methods for creating environment objects
     createShootingStar() {
-        const geometry = new THREE.CylinderGeometry(0.02, 0.02, 2, 8);
-        const material = new THREE.MeshLambertMaterial({
+        // Create a more authentic shooting star with a trail
+        const group = new THREE.Group();
+        
+        // Main star point
+        const starGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+        const starMaterial = new THREE.MeshBasicMaterial({
             color: 0xFFFFFF,
             emissive: 0xFFFFFF,
-            emissiveIntensity: 0.5
+            emissiveIntensity: 0.8,
+            transparent: true,
+            opacity: 1.0
         });
         
-        const star = new THREE.Mesh(geometry, material);
-        star.userData.isShootingStar = true;
-        star.position.set(
+        const star = new THREE.Mesh(starGeometry, starMaterial);
+        group.add(star);
+        
+        // Create trail effect with multiple smaller spheres
+        for (let i = 1; i <= 8; i++) {
+            const trailGeometry = new THREE.SphereGeometry(0.02 * (1 - i * 0.1), 6, 6);
+            const trailMaterial = new THREE.MeshBasicMaterial({
+                color: 0xFFFFFF,
+                emissive: 0xFFFFFF,
+                emissiveIntensity: 0.4 * (1 - i * 0.1),
+                transparent: true,
+                opacity: 0.8 * (1 - i * 0.1)
+            });
+            
+            const trailPoint = new THREE.Mesh(trailGeometry, trailMaterial);
+            trailPoint.position.set(i * 0.3, i * 0.15, 0); // Trail behind the star
+            group.add(trailPoint);
+        }
+        
+        group.userData.isShootingStar = true;
+        group.position.set(
             Math.random() * 50 + 50,
             Math.random() * 20 + 10,
             Math.random() * 20 - 10
         );
-        star.rotation.z = Math.PI / 4;
+        group.rotation.z = Math.PI / 6; // Less steep angle
         
-        return star;
+        return group;
     }
     
     createCoral() {
