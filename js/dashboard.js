@@ -644,19 +644,43 @@ class LuxuryDashboard {
             const raycaster = new THREE.Raycaster();
             raycaster.setFromCamera(mouse, this.camera);
             
-            const intersects = raycaster.intersectObjects(
-                this.gauges.map(g => g.group.children).flat()
-            );
+            // Get all gauge objects for intersection testing
+            const allGaugeObjects = [];
+            this.gauges.forEach(gauge => {
+                // Add the main group and all its children recursively
+                gauge.group.traverse((child) => {
+                    if (child.isMesh) {
+                        allGaugeObjects.push(child);
+                    }
+                });
+            });
+            
+            const intersects = raycaster.intersectObjects(allGaugeObjects);
             
             if (intersects.length > 0) {
-                const gauge = this.gauges.find(g => g.group.children.includes(intersects[0].object));
-                if (gauge) {
+                console.log('Gauge clicked!', intersects[0].object);
+                
+                // Find which gauge was clicked
+                let clickedGauge = null;
+                this.gauges.forEach(gauge => {
+                    gauge.group.traverse((child) => {
+                        if (child === intersects[0].object) {
+                            clickedGauge = gauge;
+                        }
+                    });
+                });
+                
+                if (clickedGauge) {
                     // Mobile: Zoom effect on tap
                     if (event.touches) {
-                        this.mobileGaugeZoom(gauge);
+                        this.mobileGaugeZoom(clickedGauge);
                     }
+                    
                     // Animate gauge with vintage spring physics
-                    this.animateGaugeValue(gauge, gauge.config.value + Math.random() * 20 - 10);
+                    const newValue = Math.random() * clickedGauge.config.max;
+                    this.animateGaugeValue(clickedGauge, newValue);
+                    
+                    console.log(`Animating ${clickedGauge.config.name} to ${newValue}`);
                 }
             }
         };
@@ -672,6 +696,9 @@ class LuxuryDashboard {
         
         // Add window resize handler
         window.addEventListener('resize', () => this.onWindowResize());
+        
+        // Start automatic gauge updates for demo
+        this.startAutomaticUpdates();
     }
     
     mobileGaugeZoom(gauge) {
@@ -747,6 +774,25 @@ class LuxuryDashboard {
         }, 5000);
     }
     
+    startAutomaticUpdates() {
+        // Make gauges come alive with automatic updates
+        setInterval(() => {
+            if (this.gauges && this.gauges.length > 0) {
+                // Randomly update one gauge
+                const randomGauge = this.gauges[Math.floor(Math.random() * this.gauges.length)];
+                const newValue = Math.random() * randomGauge.config.max;
+                this.animateGaugeValue(randomGauge, newValue);
+                
+                console.log(`Auto-updating ${randomGauge.config.name} to ${Math.round(newValue)}`);
+            }
+        }, 3000); // Update every 3 seconds
+        
+        // Also update HUD values
+        setInterval(() => {
+            this.updateSalesData();
+        }, 5000);
+    }
+    
     setupEventListeners() {
         window.addEventListener('resize', () => this.onWindowResize());
     }
@@ -803,7 +849,11 @@ class LuxuryDashboard {
             } else {
                 // Final settling animation
                 gauge.targetValue = newValue;
+                gauge.currentValue = newValue;
                 this.addNeedleVibration(gauge);
+                
+                // Add a dramatic glow effect when animation completes
+                this.addGaugeGlow(gauge);
             }
         };
         
@@ -826,6 +876,30 @@ class LuxuryDashboard {
         
         // Start vibration with random delay to avoid synchronization
         setTimeout(vibrationLoop, Math.random() * 200);
+    }
+    
+    addGaugeGlow(gauge) {
+        // Add dramatic glow effect to gauge when it updates
+        const originalEmissive = {};
+        
+        gauge.group.traverse((child) => {
+            if (child.isMesh && child.material && child.material.emissive) {
+                originalEmissive[child.uuid] = child.material.emissive.getHex();
+                
+                // Animate glow
+                const targetEmissive = 0xff6b35; // Vintage orange glow
+                child.material.emissive.setHex(targetEmissive);
+                child.material.emissiveIntensity = 0.5;
+                
+                // Fade back to original
+                setTimeout(() => {
+                    child.material.emissive.setHex(originalEmissive[child.uuid] || 0x000000);
+                    child.material.emissiveIntensity = child.material.emissiveIntensity * 0.3;
+                }, 500);
+            }
+        });
+        
+        console.log(`Added glow effect to ${gauge.config.name}`);
     }
     
     updateSalesData() {
